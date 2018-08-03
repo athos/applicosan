@@ -101,7 +101,7 @@ against a connection. Returns connection"
          [?e :inv/sku ?sku]
          [?e :inv/size ?size]
          [?e :inv/color ?color]
-         #_[(datomic.ion.starter/feature-item? $ ?e) ?featured]]
+         [(apprentice.core/feature-item? $ ?e) ?featured]]
        db type))
 
 (defn items-by-type
