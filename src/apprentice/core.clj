@@ -1,9 +1,12 @@
 (ns apprentice.core
-  (:require [clojure.data.json :as json]
-            [ataraxy.core :as ataraxy]
+  (:require [ataraxy.core :as ataraxy]
+            [clojure.data.json :as json]
             [clojure.java.io :as io]
             [datomic.client.api :as d]
-            [datomic.ion.lambda.api-gateway :as apigw]))
+            [datomic.ion.lambda.api-gateway :as apigw]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.util.response :as res]))
 
 (def get-client
   "This function will return a local implementation of the client
@@ -46,18 +49,18 @@ against a connection. Returns connection"
   (ensure-dataset "datomic-docs-tutorial"
                   'apprentice.examples.tutorial/load-dataset))
 
-(defn hello [{:keys [headers body]}]
-  {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body "Hello, World!"})
-
-(def routes
-  {"/hello" [:hello]})
+(defn hello [{:keys [headers body params] :as req}]
+  (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
 
 (def handler
   (ataraxy/handler
-   {:routes routes
-    :handlers {:hello hello}}))
+   {:routes {"/hello" ^:api [:hello]}
+    :handlers {:hello hello}
+    :middleware {:api #(-> %
+                           (wrap-json-body {:keywords? true})
+                           wrap-keyword-params
+                           wrap-json-params
+                           wrap-json-response)}}))
 
 (def app
   (apigw/ionize handler))
