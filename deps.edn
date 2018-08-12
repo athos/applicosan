@@ -4,4 +4,7 @@
  :mvn/repos {"datomic-cloud" {:url "s3://datomic-releases-1fc2183a/maven/releases"}}
  :aliases {:dev {:extra-deps {com.datomic/client-cloud {:mvn/version "0.8.54"}
                               com.datomic/ion-dev {:mvn/version "0.9.175"}}
-                 :jvm-opts ["--add-modules" "java.xml.bind"]}}}
+                 :jvm-opts ["--add-modules" "java.xml.bind"]}
+           :check {:extra-deps {athos/clj-check {:git/url "https://github.com/athos/clj-check.git"
+                                                 :sha "dde919d1b10af4ee18944a212d914654302c5838"}}
+                   :main-opts ["-m" "clj-check.check"]}}}
