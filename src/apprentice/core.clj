@@ -1,5 +1,6 @@
 (ns apprentice.core
   (:require [clojure.data.json :as json]
+            [ataraxy.core :as ataraxy]
             [clojure.java.io :as io]
             [datomic.client.api :as d]
             [datomic.ion.lambda.api-gateway :as apigw]))
@@ -45,10 +46,18 @@ against a connection. Returns connection"
   (ensure-dataset "datomic-docs-tutorial"
                   'apprentice.examples.tutorial/load-dataset))
 
-(defn hello* [{:keys [headers body]}]
+(defn hello [{:keys [headers body]}]
   {:status 200
    :headers {"Content-Type" "text/plain"}
    :body "Hello, World!"})
 
-(def hello
-  (apigw/ionize hello*))
+(def routes
+  {"/hello" [:hello]})
+
+(def handler
+  (ataraxy/handler
+   {:routes routes
+    :handlers {:hello hello}}))
+
+(def app
+  (apigw/ionize handler))
