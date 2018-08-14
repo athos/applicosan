@@ -1,4 +1,5 @@
 (ns apprentice.core
+  (:gen-class)
   (:require [ataraxy.core :as ataraxy]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
