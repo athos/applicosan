@@ -1,6 +1,8 @@
 {:paths ["src"]
  :deps {ataraxy {:mvn/version "0.4.0"}
         org.clojure/clojure {:mvn/version "1.9.0"}
+        ring/ring-core {:mvn/version "1.7.0-RC1"}
+        ring/ring-jetty-adapter {:mvn/version "1.7.0-RC1"}
         ring/ring-json {:mvn/version "0.4.0"}}
  :aliases {:dev {:extra-deps {ring/ring-mock {:mvn/version "0.3.2"}}
                  :jvm-opts ["--add-modules" "java.xml.bind"]}
