@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [ataraxy.core :as ataraxy]
             [environ.core :refer [env]]
-            [clojure.java.io :as io]
+            [integrant.core :as ig]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -22,7 +22,7 @@
 (defn hello [{:keys [headers body params] :as req}]
   (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
 
-(def app
+(defmethod ig/init-key :app/handler [_ _]
   (ataraxy/handler
    {:routes {"/hello" ^:api [:hello]}
     :handlers {:hello hello}
@@ -32,6 +32,18 @@
                            wrap-json-params
                            wrap-json-response)}}))
 
-(defn -main []
+(defmethod ig/init-key :app/server [_ {:keys [handler]}]
   (let [port (Long/parseLong (get env :port "8080"))]
-    (jetty/run-jetty app {:port port})))
+    (jetty/run-jetty handler {:port port})))
+
+(def config
+  {:app/handler {}
+   :app/server {:handler (ig/ref :app/handler)}})
+
+(def system)
+
+(defn init []
+  (alter-var-root #'system (fn [_] (ig/init config))))
+
+(defn -main []
+  (init))
