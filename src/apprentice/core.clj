@@ -1,6 +1,7 @@
 (ns apprentice.core
   (:gen-class)
   (:require [ataraxy.core :as ataraxy]
+            [environ.core :refer [env]]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
@@ -32,5 +33,5 @@
                            wrap-json-response)}}))
 
 (defn -main []
-  (let [port 8080]
+  (let [port (Long/parseLong (get env :port "8080"))]
     (jetty/run-jetty app {:port port})))
