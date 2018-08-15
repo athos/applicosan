@@ -4,12 +4,14 @@
             [integrant.core :as ig]))
 
 (defn go []
-  (app/init))
+  (app/init)
+  :started)
 
 (defn stop []
   (when app/system
     (ig/halt! app/system)
-    (alter-var-root #'app/system (constantly nil))))
+    (alter-var-root #'app/system (constantly nil))
+    :stopped))
 
 (defn reset []
   (stop)
