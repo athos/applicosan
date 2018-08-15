@@ -8,17 +8,6 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.util.response :as res]))
 
-(defn- anom-map
-  [category msg]
-  {:cognitect.anomalies/category (keyword "cognitect.anomalies" (name category))
-   :cognitect.anomalies/message msg})
-
-(defn- anomaly!
-  ([name msg]
-   (throw (ex-info msg (anom-map name msg))))
-  ([name msg cause]
-   (throw (ex-info msg (anom-map name msg) cause))))
-
 (defn acme [response]
   (fn [{[_ challenge] :ataraxy/result}]
     (res/response (str challenge "." response))))
