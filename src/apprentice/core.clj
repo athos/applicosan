@@ -22,6 +22,9 @@
 (defn hello [{:keys [headers body params] :as req}]
   (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
 
+(defmethod ig/init-key :app/env [_ _]
+  env)
+
 (defmethod ig/init-key :app/handler [_ _]
   (ataraxy/handler
    {:routes {"/hello" ^:api [:hello]}
@@ -33,12 +36,18 @@
                            wrap-json-response)}}))
 
 (defmethod ig/init-key :app/server [_ {:keys [handler]}]
+(defmethod ig/init-key :app/server [_ {:keys [handler env]}]
   (let [port (Long/parseLong (get env :port "8080"))]
-    (jetty/run-jetty handler {:port port})))
+    (jetty/run-jetty handler {:port port :join? false})))
+
+(defmethod ig/halt-key! :app/server [_ server]
+  (.stop server))
 
 (def config
-  {:app/handler {}
-   :app/server {:handler (ig/ref :app/handler)}})
+  {:app/env env
+   :app/handler {}
+   :app/server {:handler (ig/ref :app/handler)
+                :env (ig/ref :app/env)}})
 
 (def system)
 
