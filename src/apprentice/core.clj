@@ -19,23 +19,33 @@
   ([name msg cause]
    (throw (ex-info msg (anom-map name msg) cause))))
 
+(defn acme [response]
+  (fn [{[_ challenge] :ataraxy/result}]
+    (res/response (str challenge "." response))))
+
 (defn hello [{:keys [headers body params] :as req}]
   (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
 
 (defmethod ig/init-key :app/env [_ _]
   env)
 
-(defmethod ig/init-key :app/handler [_ _]
-  (ataraxy/handler
-   {:routes {"/hello" ^:api [:hello]}
-    :handlers {:hello hello}
-    :middleware {:api #(-> %
-                           (wrap-json-body {:keywords? true})
-                           wrap-keyword-params
-                           wrap-json-params
-                           wrap-json-response)}}))
+(defmethod ig/init-key :app/routes [_ {:keys [env]}]
+  (cond-> {"/hello" ^:api [:hello]}
+    (get env :acme-challenge)
+    (assoc '[:get "/.well-known/acme-challenge/" challenge] '[:acme challenge])))
 
-(defmethod ig/init-key :app/server [_ {:keys [handler]}]
+(defmethod ig/init-key :app/handler [_ {:keys [routes env]}]
+  (let [acme-challenge (get env :acme-challenge)]
+    (ataraxy/handler
+     {:routes routes
+      :handlers {:acme (acme acme-challenge)
+                 :hello hello}
+      :middleware {:api #(-> %
+                             (wrap-json-body {:keywords? true})
+                             wrap-keyword-params
+                             wrap-json-params
+                             wrap-json-response)}})))
+
 (defmethod ig/init-key :app/server [_ {:keys [handler env]}]
   (let [port (Long/parseLong (get env :port "8080"))]
     (jetty/run-jetty handler {:port port :join? false})))
@@ -45,7 +55,9 @@
 
 (def config
   {:app/env env
-   :app/handler {}
+   :app/routes {:env (ig/ref :app/env)}
+   :app/handler {:routes (ig/ref :app/routes)
+                 :env (ig/ref :app/env)}
    :app/server {:handler (ig/ref :app/handler)
                 :env (ig/ref :app/env)}})
 
