@@ -1,6 +1,8 @@
 (ns apprentice.core
   (:gen-class)
-  (:require [ataraxy.core :as ataraxy]
+  (:require [apprentice.controllers]
+            [apprentice.routes]
+            [ataraxy.core :as ataraxy]
             [environ.core :refer [env]]
             [integrant.core :as ig]
             [ring.adapter.jetty :as jetty]
@@ -8,32 +10,18 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.util.response :as res]))
 
-(defn acme [response]
-  (fn [{[_ challenge] :ataraxy/result}]
-    (res/response (str challenge "." response))))
-
-(defn hello [{:keys [headers body params] :as req}]
-  (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
-
 (defmethod ig/init-key :app/env [_ _]
   env)
 
-(defmethod ig/init-key :app/routes [_ {:keys [env]}]
-  (cond-> {"/hello" ^:api [:hello]}
-    (get env :acme-challenge)
-    (assoc '[:get "/.well-known/acme-challenge/" challenge] '[:acme challenge])))
-
-(defmethod ig/init-key :app/handler [_ {:keys [routes env]}]
-  (let [acme-challenge (get env :acme-challenge)]
-    (ataraxy/handler
-     {:routes routes
-      :handlers {:acme (acme acme-challenge)
-                 :hello hello}
-      :middleware {:api #(-> %
-                             (wrap-json-body {:keywords? true})
-                             wrap-keyword-params
-                             wrap-json-params
-                             wrap-json-response)}})))
+(defmethod ig/init-key :app/handler [_ {:keys [routes controllers env]}]
+  (ataraxy/handler
+   {:routes routes
+    :handlers controllers
+    :middleware {:api #(-> %
+                           (wrap-json-body {:keywords? true})
+                           wrap-keyword-params
+                           wrap-json-params
+                           wrap-json-response)}}))
 
 (defmethod ig/init-key :app/server [_ {:keys [handler env]}]
   (let [port (Long/parseLong (get env :port "8080"))]
@@ -44,8 +32,10 @@
 
 (def config
   {:app/env env
-   :app/routes {:env (ig/ref :app/env)}
+   :app/routes {}
+   :app/controllers {:env (ig/ref :app/env)}
    :app/handler {:routes (ig/ref :app/routes)
+                 :controllers (ig/ref :app/controllers)
                  :env (ig/ref :app/env)}
    :app/server {:handler (ig/ref :app/handler)
                 :env (ig/ref :app/env)}})
