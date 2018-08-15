@@ -13,10 +13,10 @@
                  [ring/ring-jetty-adapter "1.7.0-RC1"]
                  [ring/ring-json "0.4.0"]]
   :jvm-opts ["--add-modules" "java.xml.bind"]
-  :main apprentice.core
-  :aot :all
-  :uberjar-name "apprentice-standalone.jar"
   :profiles {:dev {:source-paths ["env"]
                    :dependencies
                    [[org.clojure/tools.namespace "0.2.11"]
-                    [ring/ring-mock "0.3.2"]]}})
+                    [ring/ring-mock "0.3.2"]]}
+             :uberjar {:main apprentice.core
+                       :aot :all
+                       :uberjar-name "apprentice-standalone.jar"}})
