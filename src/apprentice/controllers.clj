@@ -23,11 +23,7 @@
                            (res/response "ok")))
       (res/response "ok"))))
 
-(defn hello [{:keys [headers body params] :as req}]
-  (res/response {:resp (str "Hello, " (or (:name params) "World") "!")}))
-
 (defmethod ig/init-key :app/controllers [_ {:keys [slack env]}]
   (let [acme-challenge (get env :acme-challenge)]
     {:acme (acme acme-challenge)
-     :slack (slack-event-handler slack)
-     :hello hello}))
+     :slack (slack-event-handler slack)}))
