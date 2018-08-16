@@ -3,3 +3,4 @@
 *~
 /.lein-*
 /.nrepl-*
+/.envrc
