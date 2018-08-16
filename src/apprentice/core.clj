@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [apprentice.controllers]
             [apprentice.routes]
+            [apprentice.slack]
             [ataraxy.core :as ataraxy]
             [environ.core :refer [env]]
             [integrant.core :as ig]
@@ -32,8 +33,10 @@
 
 (def config
   {:app/env env
+   :app/slack {:env (ig/ref :app/env)}
    :app/routes {}
-   :app/controllers {:env (ig/ref :app/env)}
+   :app/controllers {:slack (ig/ref :app/slack)
+                     :env (ig/ref :app/env)}
    :app/handler {:routes (ig/ref :app/routes)
                  :controllers (ig/ref :app/controllers)
                  :env (ig/ref :app/env)}
