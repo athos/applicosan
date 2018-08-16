@@ -7,6 +7,7 @@
   :source-paths ["src"]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [ataraxy "0.4.0"]
+                 [clj-http "3.9.1"]
                  [environ "1.1.0"]
                  [integrant "0.6.3"]
                  [ring/ring-core "1.7.0-RC1"]
