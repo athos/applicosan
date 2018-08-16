@@ -3,11 +3,11 @@
             [cheshire.core :as cheshire]
             [integrant.core :as ig]))
 
-(defrecord SlackClient [token])
+(defrecord SlackClient [token id name])
 
-(defn make-client [token]
-  {:pre [(string? token)]}
-  (map->SlackClient {:token token}))
+(defn make-client [token id name]
+  {:pre [(string? token) (string? id) (string? name)]}
+  (map->SlackClient {:token token :id id :name name}))
 
 (defn basic-slack-headers [client]
   {"Authorization" (str "Bearer " (:token client))})
@@ -19,4 +19,4 @@
               :body (cheshire/generate-string {:channel channel :text text})}))
 
 (defmethod ig/init-key :app/slack [_ {:keys [env]}]
-  (make-client (:slack-bot-token env)))
+  (make-client (:slack-bot-token env) (:slack-bot-id env) (:slack-bot-name env)))

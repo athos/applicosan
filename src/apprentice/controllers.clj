@@ -15,8 +15,11 @@
       "url_verification" (res/response {:challenge (:challenge params)})
       "event_callback" (let [{:keys [type] :as event} (:event params)]
                          (case type
-                           "app_mention" (do (slack/post-message client (:channel event) (:text event))
-                                             (res/response "ok"))
+                           "app_mention" (do
+                                           (when (and (not= (:user event) (:id client))
+                                                      (not= (:username event) (:name client)))
+                                             (slack/post-message client (:channel event) (:text event)))
+                                           (res/response "ok"))
                            (res/response "ok")))
       (res/response "ok"))))
 
