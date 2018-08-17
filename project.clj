@@ -11,6 +11,7 @@
                  [com.novemberain/monger "3.1.0"]
                  [environ "1.1.0"]
                  [integrant "0.6.3"]
+                 [org.clojure/core.cache "0.7.1"]
                  [ring/ring-core "1.7.0-RC1"]
                  [ring/ring-jetty-adapter "1.7.0-RC1"]
                  [ring/ring-json "0.4.0"]]

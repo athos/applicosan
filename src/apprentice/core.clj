@@ -4,6 +4,7 @@
             [apprentice.routes]
             [apprentice.slack]
             [ataraxy.core :as ataraxy]
+            [clojure.core.cache :as cache]
             [environ.core :refer [env]]
             [integrant.core :as ig]
             [monger.core :as mg]
@@ -20,6 +21,9 @@
 
 (defmethod ig/halt-key! :app/db [_ {:keys [conn]}]
   (mg/disconnect conn))
+
+(defmethod ig/init-key :app/event-cache [_ _]
+  (atom (cache/fifo-cache-factory {} :threshold 16)))
 
 (defmethod ig/init-key :app/handler [_ {:keys [routes controllers env]}]
   (ataraxy/handler
@@ -40,10 +44,12 @@
 
 (def config
   {:app/env env
+   :app/event-cache {}
    :app/slack {:env (ig/ref :app/env)}
    :app/db {:env (ig/ref :app/env)}
    :app/routes {}
    :app/controllers {:slack (ig/ref :app/slack)
+                     :cache (ig/ref :app/event-cache)
                      :db (ig/ref :app/db)
                      :env (ig/ref :app/env)}
    :app/handler {:routes (ig/ref :app/routes)
