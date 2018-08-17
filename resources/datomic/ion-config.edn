@@ -1,8 +1,0 @@
-{:allow [;; lambda handlers
-         apprentice.core/app
-         ]
- :lambdas {:app
-           {:fn apprentice.core/app
-            :integration :api-gateway/proxy
-            :description "apprentice app handler"}}
- :app-name "apprentice"}
