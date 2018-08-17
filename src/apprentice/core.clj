@@ -6,6 +6,7 @@
             [ataraxy.core :as ataraxy]
             [environ.core :refer [env]]
             [integrant.core :as ig]
+            [monger.core :as mg]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -13,6 +14,12 @@
 
 (defmethod ig/init-key :app/env [_ _]
   env)
+
+(defmethod ig/init-key :app/db [_ {:keys [env]}]
+  (mg/connect-via-uri (:mongodb-uri env)))
+
+(defmethod ig/halt-key! :app/db [_ {:keys [conn]}]
+  (mg/disconnect conn))
 
 (defmethod ig/init-key :app/handler [_ {:keys [routes controllers env]}]
   (ataraxy/handler
@@ -34,8 +41,10 @@
 (def config
   {:app/env env
    :app/slack {:env (ig/ref :app/env)}
+   :app/db {:env (ig/ref :app/env)}
    :app/routes {}
    :app/controllers {:slack (ig/ref :app/slack)
+                     :db (ig/ref :app/db)
                      :env (ig/ref :app/env)}
    :app/handler {:routes (ig/ref :app/routes)
                  :controllers (ig/ref :app/controllers)
