@@ -23,7 +23,7 @@
   (mg/disconnect conn))
 
 (defmethod ig/init-key :app/event-cache [_ _]
-  (atom (cache/fifo-cache-factory {} :threshold 16)))
+  (atom (cache/ttl-cache-factory {} :ttl 90000)))
 
 (defmethod ig/init-key :app/handler [_ {:keys [routes controllers env]}]
   (ataraxy/handler
