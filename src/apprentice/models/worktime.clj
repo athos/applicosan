@@ -1,4 +1,4 @@
-(ns apprentice.models.attendance
+(ns apprentice.models.worktime
   (:require [monger.collection :as mc]
             [monger.operators :as mo])
   (:import [java.util Date]
