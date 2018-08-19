@@ -27,7 +27,7 @@
 (defn- record-time! [db type]
   {:pre (#{:in :out} type)}
   (let [{:keys [now] :as time} (current-datetime)]
-    (mc/update db "attendance"
+    (mc/update db "worktime"
                (select-keys time [:year :month :day])
                {mo/$set {type now}}
                {:upsert true})))
@@ -37,7 +37,7 @@
 
 (defn- aggregate [db drain]
   (let [{:keys [year month]} (current-datetime)]
-    (->> (mc/find-maps db "attendance" {:year year :month month})
+    (->> (mc/find-maps db "worktime" {:year year :month month})
          (d/reduce drain))))
 
 (defn aggregate-overtime [db]
