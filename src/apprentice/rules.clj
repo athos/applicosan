@@ -12,4 +12,4 @@
 
 (defrule bye #"^bye|goodbye|さようなら|ばいばい" [event {:keys [db] :as opts}]
   (worktime/clock-out! db)
-  (reply event opts "ばいばいー👋"))
+  (reply event opts "おつかれさまー👋"))
