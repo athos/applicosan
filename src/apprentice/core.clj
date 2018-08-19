@@ -1,13 +1,13 @@
 (ns apprentice.core
   (:gen-class)
-  (:require [apprentice.controllers]
+  (:require [apprentice.db]
+            [apprentice.controllers]
             [apprentice.routes]
             [apprentice.slack]
             [ataraxy.core :as ataraxy]
             [clojure.core.cache :as cache]
             [environ.core :refer [env]]
             [integrant.core :as ig]
-            [monger.core :as mg]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -15,12 +15,6 @@
 
 (defmethod ig/init-key :app/env [_ _]
   env)
-
-(defmethod ig/init-key :app/db [_ {:keys [env]}]
-  (mg/connect-via-uri (:mongodb-uri env)))
-
-(defmethod ig/halt-key! :app/db [_ {:keys [conn]}]
-  (mg/disconnect conn))
 
 (defmethod ig/init-key :app/event-cache [_ _]
   (atom (cache/ttl-cache-factory {} :ttl 90000)))

@@ -1,5 +1,6 @@
 (ns apprentice.models.worktime
-  (:require [drains.core :as d]
+  (:require [apprentice.db :as db]
+            [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]
             [monger.operators :as mo])
@@ -27,7 +28,7 @@
 (defn- record-time! [db type]
   {:pre (#{:in :out} type)}
   (let [{:keys [now] :as time} (current-datetime)]
-    (mc/update db "worktime"
+    (mc/update db db/COLL_WORKTIME
                (select-keys time [:year :month :day])
                {mo/$set {type now}}
                {:upsert true})))
@@ -37,7 +38,7 @@
 
 (defn- aggregate [db drain]
   (let [{:keys [year month]} (current-datetime)]
-    (->> (mc/find-maps db "worktime" {:year year :month month})
+    (->> (mc/find-maps db db/COLL_WORKTIME {:year year :month month})
          (d/reduce drain))))
 
 (defn aggregate-overtime [db]
