@@ -1,1 +1,1 @@
-web: java -jar target/apprentice-standalone.jar
+web: java -jar target/applicosan-standalone.jar

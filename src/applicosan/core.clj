@@ -1,9 +1,9 @@
-(ns apprentice.core
+(ns applicosan.core
   (:gen-class)
-  (:require [apprentice.db]
-            [apprentice.controllers]
-            [apprentice.routes]
-            [apprentice.slack]
+  (:require [applicosan.db]
+            [applicosan.controllers]
+            [applicosan.routes]
+            [applicosan.slack]
             [ataraxy.core :as ataraxy]
             [clojure.core.cache :as cache]
             [environ.core :refer [env]]

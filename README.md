@@ -1,6 +1,6 @@
-# apprentice
+# applicosan
 
-personal Slack bot
+My personal Slack bot
 
 ## License
 

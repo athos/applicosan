@@ -1,7 +1,7 @@
-(ns apprentice.rules
-  (:require [apprentice.models.worktime :as worktime]
-            [apprentice.rules.core :as rules :refer [defrule]]
-            [apprentice.slack :as slack]))
+(ns applicosan.rules
+  (:require [applicosan.models.worktime :as worktime]
+            [applicosan.rules.core :as rules :refer [defrule]]
+            [applicosan.slack :as slack]))
 
 (defn reply [{:keys [channel]} {:keys [slack]} message]
   (slack/post-message slack channel message))

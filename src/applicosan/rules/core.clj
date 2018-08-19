@@ -1,4 +1,4 @@
-(ns apprentice.rules.core)
+(ns applicosan.rules.core)
 
 (def defined-rules (atom []))
 

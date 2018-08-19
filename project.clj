@@ -1,6 +1,6 @@
-(defproject apprentice "0.1.0-SNAPSHOT"
-  :description "FIXME"
-  :url "https://github.com/athos/apprentice"
+(defproject applicosan "0.1.0-SNAPSHOT"
+  :description "My personal Slack bot"
+  :url "https://github.com/athos/applicosan"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
@@ -21,6 +21,6 @@
                    :dependencies
                    [[org.clojure/tools.namespace "0.2.11"]
                     [ring/ring-mock "0.3.2"]]}
-             :uberjar {:main apprentice.core
+             :uberjar {:main applicosan.core
                        :aot :all
-                       :uberjar-name "apprentice-standalone.jar"}})
+                       :uberjar-name "applicosan-standalone.jar"}})

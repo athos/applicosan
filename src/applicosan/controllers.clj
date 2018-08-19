@@ -1,6 +1,6 @@
-(ns apprentice.controllers
-  (:require [apprentice.rules.core :as rules]
-            [apprentice.rules]
+(ns applicosan.controllers
+  (:require [applicosan.rules.core :as rules]
+            [applicosan.rules]
             [clojure.string :as str]
             [integrant.core :as ig]
             [ring.util.response :as res]))

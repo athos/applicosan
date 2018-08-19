@@ -1,6 +1,6 @@
-(ns apprentice.models.worktime
-  (:require [apprentice.db :as db]
-            [apprentice.time :as time]
+(ns applicosan.models.worktime
+  (:require [applicosan.db :as db]
+            [applicosan.time :as time]
             [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]

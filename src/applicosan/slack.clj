@@ -1,4 +1,4 @@
-(ns apprentice.slack
+(ns applicosan.slack
   (:require [clj-http.client :as http]
             [cheshire.core :as cheshire]
             [integrant.core :as ig]))

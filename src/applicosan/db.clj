@@ -1,4 +1,4 @@
-(ns apprentice.db
+(ns applicosan.db
   (:require [integrant.core :as ig]
             [monger.collection :as mc]
             [monger.core :as mg]))

@@ -1,5 +1,5 @@
 (ns dev
-  (:require [apprentice.core :as app]
+  (:require [applicosan.core :as app]
             [clojure.tools.namespace.repl :refer [refresh]]
             [integrant.core :as ig]))
 

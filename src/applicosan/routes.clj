@@ -1,4 +1,4 @@
-(ns apprentice.routes
+(ns applicosan.routes
   (:require [integrant.core :as ig]))
 
 (defmethod ig/init-key :app/routes [_ _]
