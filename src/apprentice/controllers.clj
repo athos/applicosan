@@ -17,7 +17,7 @@
              (not (contains? @cache (:event_id event))))
     (swap! cache assoc (:event_id event) event)
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
-      (rules/apply-rule message event opts))))
+      (future (rules/apply-rule message event opts)))))
 
 (defn slack-event-handler [opts]
   (fn [{{:keys [type] :as params} :params}]
