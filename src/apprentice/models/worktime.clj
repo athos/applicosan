@@ -1,9 +1,11 @@
 (ns apprentice.models.worktime
-  (:require [monger.collection :as mc]
+  (:require [drains.core :as d]
+            [drains.utils :as dutils]
+            [monger.collection :as mc]
             [monger.operators :as mo])
-  (:import [java.util Date]
-           [java.time LocalDateTime ZonedDateTime ZoneId]
-           [java.time.temporal ChronoUnit]))
+  (:import [java.time LocalDateTime ZonedDateTime ZoneId]
+           [java.time.temporal ChronoUnit]
+           [java.util Date]))
 
 (defn ^ZonedDateTime now []
   (.atZone (LocalDateTime/now) (ZoneId/systemDefault)))
@@ -32,3 +34,17 @@
 
 (def clock-in! #(record-time! % :in))
 (def clock-out! #(record-time! % :out))
+
+(defn- aggregate [db drain]
+  (let [{:keys [year month]} (current-datetime)]
+    (->> (mc/find-maps db "attendance" {:year year :month month})
+         (d/reduce drain))))
+
+(defn aggregate-overtime [db]
+  (let [drain (d/with (map (fn [{:keys [in out]}]
+                             (if out
+                               (- (/ (- (.getTime out) (.getTime in)) 1000.0 60) (* 9 60))
+                               0)))
+                      (d/drains {:total (dutils/sum)
+                                 :average (dutils/mean)}))]
+    (aggregate db drain)))
