@@ -1,48 +1,35 @@
 (ns apprentice.models.worktime
   (:require [apprentice.db :as db]
+            [apprentice.time :as time]
             [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]
             [monger.operators :as mo])
-  (:import [java.time LocalDateTime ZonedDateTime ZoneId]
-           [java.time.temporal ChronoUnit]
-           [java.util Date]))
+  (:import [java.util Date]))
 
-(defn- ^ZonedDateTime now []
-  (.atZone (LocalDateTime/now) (ZoneId/systemDefault)))
-
-(defn- ^ZonedDateTime start-of-day [^ZonedDateTime zdt]
-  (.truncatedTo zdt ChronoUnit/DAYS))
-
-(defn- ->date [^ZonedDateTime zdt]
-  (Date/from (.toInstant zdt)))
-
-(defn- current-datetime []
-  (let [now (now)
-        today (start-of-day now)]
-    {:year (.getYear today)
-     :month (.getValue (.getMonth today))
-     :day (.getDayOfMonth today)
-     :now (->date now)}))
-
-(defn- record-time! [db type]
+(defn- record-time! [db type dt]
   {:pre (#{:in :out} type)}
-  (let [{:keys [now] :as time} (current-datetime)]
-    (mc/update db db/COLL_WORKTIME
-               (select-keys time [:year :month :day])
-               {mo/$set {type now}}
-               {:upsert true})))
+  (mc/update db db/COLL_WORKTIME (time/date-map dt)
+             {mo/$set {type (time/->date dt)}}
+             {:upsert true}))
 
-(def clock-in! #(record-time! % :in))
-(def clock-out! #(record-time! % :out))
+(defn clock-in!
+  ([db] (clock-in! db (Date.)))
+  ([db dt]
+   (record-time! db :in dt)))
+
+(defn clock-out!
+  ([db] (clock-out! db (Date.)))
+  ([db dt]
+   (record-time! db :out dt)))
 
 (defn- aggregate [db drain]
-  (let [{:keys [year month]} (current-datetime)]
+  (let [{:keys [year month]} (time/date-map (Date.))]
     (->> (mc/find-maps db db/COLL_WORKTIME {:year year :month month})
          (d/reduce drain))))
 
 (defn aggregate-overtime [db]
-  (let [drain (d/with (map (fn [{:keys [in out]}]
+  (let [drain (d/with (map (fn [{:keys [^Date in, ^Date out]}]
                              (if out
                                (- (/ (- (.getTime out) (.getTime in)) 1000.0 60) (* 9 60))
                                0)))
