@@ -34,5 +34,6 @@
                                (- (/ (- (.getTime out) (.getTime in)) 1000.0 60) (* 9 60))
                                0)))
                       (d/drains {:total (dutils/sum)
-                                 :average (dutils/mean)}))]
+                                 :average (dutils/mean)
+                                 :last (d/drain (completing (fn [_ t] t)) 0)}))]
     (aggregate db drain)))
