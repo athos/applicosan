@@ -7,16 +7,16 @@
            [java.time.temporal ChronoUnit]
            [java.util Date]))
 
-(defn ^ZonedDateTime now []
+(defn- ^ZonedDateTime now []
   (.atZone (LocalDateTime/now) (ZoneId/systemDefault)))
 
-(defn ^ZonedDateTime start-of-day [^ZonedDateTime zdt]
+(defn- ^ZonedDateTime start-of-day [^ZonedDateTime zdt]
   (.truncatedTo zdt ChronoUnit/DAYS))
 
-(defn ->date [^ZonedDateTime zdt]
+(defn- ->date [^ZonedDateTime zdt]
   (Date/from (.toInstant zdt)))
 
-(defn current-datetime []
+(defn- current-datetime []
   (let [now (now)
         today (start-of-day now)]
     {:year (.getYear today)
@@ -24,7 +24,7 @@
      :day (.getDayOfMonth today)
      :now (->date now)}))
 
-(defn record-time! [db type]
+(defn- record-time! [db type]
   {:pre (#{:in :out} type)}
   (let [{:keys [now] :as time} (current-datetime)]
     (mc/update db "attendance"
