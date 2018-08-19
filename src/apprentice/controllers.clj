@@ -33,4 +33,4 @@
 (defmethod ig/init-key :app/controllers [_ {:keys [env] :as opts}]
   (let [acme-challenge (get env :acme-challenge)]
     {:acme (acme acme-challenge)
-     :slack (slack-event-handler opts)}))
+     :slack (slack-event-handler (update opts :db :db))}))
