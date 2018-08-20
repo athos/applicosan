@@ -39,10 +39,13 @@
      :month (.getValue (.getMonth zdt))
      :day (.getDayOfMonth zdt)}))
 
+(defn ^ZonedDateTime now []
+  (->zoned-datetime (LocalDateTime/now)))
+
 (defn today
   ([] (today 0 0))
   ([^long hours, ^long minutes]
-   (-> ^ZonedDateTime (->zoned-datetime (Date.))
+   (-> (now)
        (.truncatedTo ChronoUnit/DAYS)
        (.withHour hours)
        (.withMinute minutes))))

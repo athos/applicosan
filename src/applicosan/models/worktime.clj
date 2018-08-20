@@ -14,17 +14,17 @@
              {:upsert true}))
 
 (defn clock-in!
-  ([db] (clock-in! db (Date.)))
+  ([db] (clock-in! db (time/now)))
   ([db dt]
    (record-time! db :in dt)))
 
 (defn clock-out!
-  ([db] (clock-out! db (Date.)))
+  ([db] (clock-out! db (time/now)))
   ([db dt]
    (record-time! db :out dt)))
 
 (defn- aggregate [db drain]
-  (let [{:keys [year month]} (time/date-map (Date.))]
+  (let [{:keys [year month]} (time/date-map (time/now))]
     (->> (mc/find-maps db db/COLL_WORKTIME {:year year :month month})
          (d/reduce drain))))
 
