@@ -7,7 +7,7 @@
 (defn reply [{:keys [channel]} {:keys [slack]} message]
   (slack/post-message slack channel message))
 
-(defn stringify-time [t]
+(defn stringify-time [^long t]
   (if (> (Math/abs t) 60)
     (format "%d時間%d分" (long (quot t 60)) (long (mod t 60)))
     (format "%d分" (long t))))
