@@ -38,3 +38,11 @@
     {:year (.getYear zdt)
      :month (.getValue (.getMonth zdt))
      :day (.getDayOfMonth zdt)}))
+
+(defn today
+  ([] (today 0 0))
+  ([^long hours, ^long minutes]
+   (-> ^ZonedDateTime (->zoned-datetime (Date.))
+       (.truncatedTo ChronoUnit/DAYS)
+       (.withHour hours)
+       (.withMinute minutes))))
