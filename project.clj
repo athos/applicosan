@@ -16,7 +16,6 @@
                  [ring/ring-core "1.7.0-RC1"]
                  [ring/ring-jetty-adapter "1.7.0-RC1"]
                  [ring/ring-json "0.4.0"]]
-  :jvm-opts ["--add-modules" "java.xml.bind"]
   :profiles {:dev {:source-paths ["env"]
                    :dependencies
                    [[org.clojure/tools.namespace "0.2.11"]
