@@ -1,4 +1,5 @@
 # applicosan
+[![CircleCI](https://circleci.com/gh/athos/applicosan.svg?style=shield)](https://circleci.com/gh/athos/applicosan)
 
 My personal Slack bot
 
