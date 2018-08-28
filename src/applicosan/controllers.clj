@@ -11,11 +11,11 @@
       (res/response (str challenge "." response))
       (res/not-found "Not Found"))))
 
-(defn handle-mention [event {:keys [slack cache] :as opts}]
+(defn handle-mention [event-id event {:keys [slack cache] :as opts}]
   (when (and (not= (:user event) (:id slack))
              (not= (:username event) (:name slack))
-             (not (contains? @cache (:event_id event))))
-    (swap! cache assoc (:event_id event) event)
+             (not (contains? @cache event-id)))
+    (swap! cache assoc event-id event)
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
       (future (rules/apply-rule message event opts)))))
 
@@ -25,7 +25,7 @@
       "url_verification" (res/response {:challenge (:challenge params)})
       "event_callback" (let [{:keys [type] :as event} (:event params)]
                          (case type
-                           "app_mention" (handle-mention event opts)
+                           "app_mention" (handle-mention (:event_id params) event opts)
                            nil)
                          (res/response "ok"))
       (res/response "ok"))))
