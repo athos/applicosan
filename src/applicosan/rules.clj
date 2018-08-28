@@ -14,7 +14,9 @@
 
 (defn stringify-time [^long t]
   (if (> (Math/abs t) 60)
-    (format "%d時間%d分" (long (quot t 60)) (long (mod t 60)))
+    (let [m (long (mod t 60))]
+      (str (long (quot t 60)) "時間"
+           (if (= m 0) "ちょうど" (str m "分"))))
     (format "%d分" (long t))))
 
 (defn notify-overtime [event {:keys [db] :as opts} & {:keys [excludes-today?]}]
