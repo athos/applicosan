@@ -2,7 +2,12 @@
   (:require [applicosan.models.worktime :as worktime]
             [applicosan.rules.core :as rules :refer [defrule]]
             [applicosan.slack :as slack]
-            [applicosan.time :as time]))
+            [applicosan.time :as time])
+  (:import [java.util Date]))
+
+(defn event-time [{:keys [event_ts]}]
+  (let [[_ s ms] (re-matches #"^(\d+)\.(\d{3})\d+$" event_ts)]
+    (Date. (+ (* 1000 (Long/parseLong s)) (Long/parseLong ms)))))
 
 (defn reply [{:keys [channel]} {:keys [slack]} message]
   (slack/post-message slack channel message))
@@ -20,7 +25,7 @@
              (str "今日の残業時間は" (stringify-time last) "、")))))
 
 (defrule hello #"^hi|hello|おは|こんにちは" [event {:keys [db] :as opts}]
-  (worktime/clock-in! db)
+  (worktime/clock-in! db (event-time event))
   (let [{:keys [total]} (worktime/aggregate-overtime db)]
     (reply event opts "おはよー☀️")
     (reply event opts (str "今月の残業時間は" (stringify-time total) "だよ"))))
@@ -32,7 +37,7 @@
     (reply event opts (str "出社時間を" hours ":" minutes "で記録したよ！"))))
 
 (defrule bye #"^bye|goodbye|さようなら|ばいばい|おつかれ|お疲れ" [event {:keys [db] :as opts}]
-  (worktime/clock-out! db)
+  (worktime/clock-out! db (event-time event))
   (reply event opts "おつかれさまー👋")
   (notify-overtime event opts))
 
