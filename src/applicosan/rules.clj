@@ -14,7 +14,7 @@
 
 (defn stringify-time [^long t]
   (if (> (Math/abs t) 60)
-    (let [m (long (mod t 60))]
+    (let [m (Math/abs (long (rem t 60)))]
       (str (long (quot t 60)) "時間"
            (if (= m 0) "ちょうど" (str m "分"))))
     (format "%d分" (long t))))
