@@ -1,5 +1,6 @@
 (ns applicosan.slack
-  (:require [clj-http.client :as http]
+  (:require [applicosan.image :as image]
+            [clj-http.client :as http]
             [cheshire.core :as cheshire]
             [integrant.core :as ig]))
 
@@ -12,11 +13,21 @@
 (defn basic-slack-headers [client]
   {"Authorization" (str "Bearer " (:token client))})
 
+(defn api-endpoint [path]
+  (str "https://slack.com/api" path))
+
 (defn post-message [client channel text]
-  (http/post "https://slack.com/api/chat.postMessage"
+  (http/post (api-endpoint "/chat.postMessage")
              {:headers (merge (basic-slack-headers client)
                               {"Content-Type" "application/json"})
               :body (cheshire/generate-string {:channel channel :text text})}))
+
+(defn post-image [client channel image]
+  (http/post (api-endpoint "/files.upload")
+             {:headers (basic-slack-headers client)
+              :multipart [{:name "file" :content (image/->bytes image)}
+                          {:name "filetype" :content "png"}
+                          {:name "channels" :content channel}]}))
 
 (defmethod ig/init-key :app/slack [_ {:keys [env]}]
   (make-client (:slack-bot-token env) (:slack-bot-id env) (:slack-bot-name env)))
