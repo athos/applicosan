@@ -20,7 +20,8 @@
     (format "%d分" (long t))))
 
 (defn notify-overtime [event {:keys [db] :as opts} & {:keys [excludes-today?]}]
-  (let [{:keys [last total]} (worktime/aggregate-overtime db)]
+  (let [worktimes (worktime/latest-worktimes db)
+        {:keys [last total]} (worktime/aggregate-overtime worktimes)]
     (reply event opts
            (cond->> (str "今月の残業時間は" (stringify-time total) "だよ")
              (not excludes-today?)

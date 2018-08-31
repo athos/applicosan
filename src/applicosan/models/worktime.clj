@@ -4,7 +4,8 @@
             [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]
-            [monger.operators :as mo])
+            [monger.operators :as mo]
+            [monger.query :as mq])
   (:import [java.util Date]))
 
 (defn- record-time! [db type dt]
@@ -23,17 +24,22 @@
   ([db dt]
    (record-time! db :out dt)))
 
-(defn- aggregate [db drain]
-  (let [{:keys [year month]} (time/date-map (time/now))]
-    (->> (mc/find-maps db db/COLL_WORKTIME {:year year :month month})
-         (d/reduce drain))))
+(defn latest-worktimes
+  ([db] (latest-worktimes db 20))
+  ([db n]
+   (->> (mq/with-collection db db/COLL_WORKTIME
+          (mq/find {})
+          (mq/sort {:year -1 :month -1 :day -1})
+          (mq/limit n))
+        reverse)))
 
-(defn aggregate-overtime [db]
-  (let [drain (d/with (map (fn [{:keys [^Date in, ^Date out]}]
-                             (if out
-                               (- (/ (- (.getTime out) (.getTime in)) 1000.0 60) (* 9 60))
-                               0)))
+(defn aggregate-overtime [worktimes year month]
+  (let [drain (d/with (comp (filter #(and (= (:year %) year) (= (:month %) month)))
+                            (map (fn [{:keys [^Date in, ^Date out]}]
+                              (if out
+                                (- (/ (- (.getTime out) (.getTime in)) 1000.0 60) (* 9 60))
+                                0))))
                       (d/drains {:total (dutils/sum)
                                  :average (dutils/mean)
                                  :last (d/drain (completing (fn [_ t] t)) 0)}))]
-    (aggregate db drain)))
+    (d/reduce drain worktimes)))
