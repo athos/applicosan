@@ -1,0 +1,72 @@
+(ns applicosan.models.worktime.chart
+  (:import [java.awt BasicStroke Color Graphics2D]))
+
+(set! *warn-on-reflection* true)
+
+(defn make-renderer [g width height]
+  (let [margin 10
+        interval 2]
+    {:g g
+     :width width
+     :height height
+     :margin margin
+     :interval interval
+     :origin-x (+ margin interval)
+     :origin-y (+ margin interval)
+     :area-width (- width (* 2 margin) (* 2 interval))
+     :area-height (- height (* 2 margin) (* 2 interval))}))
+
+(defn time->height [{:keys [area-height]} t]
+  (* area-height (/ t 720.0)))
+
+(defn render-worktimes [renderer worktimes]
+  (let [{:keys [^Graphics2D g width height interval origin-x origin-y]} renderer
+        bar-width (long (- (/ (- width interval) 20.0) interval))]
+    (doseq [[i {:keys [in out]}] (map-indexed vector worktimes)
+            :when (and in out)
+            :let [worktime (- out in)
+                  color (condp <= (- worktime 540)
+                          45 Color/RED
+                          15 Color/ORANGE
+                          Color/GREEN)]]
+      (.setColor g color)
+      (.fillRect g
+                 (+ origin-x (* i (+ bar-width interval)))
+                 (+ origin-y (time->height renderer (- in 540)))
+                 bar-width
+                 (time->height renderer worktime)))))
+
+(defn render-scale [renderer]
+  (let [half-len 3
+        {:keys [^Graphics2D g origin-x origin-y area-width interval]} renderer]
+    (.setColor g Color/GRAY)
+    (doseq [i (range 1 12)
+            :let [y (+ origin-y (* i (time->height renderer 60)))]]
+      (.drawLine g
+                 (- origin-x half-len) y
+                 (+ origin-x half-len) y)
+      (.drawLine g
+                 (- (+ origin-x area-width interval) half-len) y
+                 (+ (+ origin-x area-width interval) half-len) y))))
+
+(defn render-dashes [{:keys [^Graphics2D g origin-x origin-y area-width] :as renderer}]
+  (let [stroke (.getStroke g)
+        dashed (BasicStroke. 1 BasicStroke/CAP_BUTT BasicStroke/JOIN_BEVEL 0 (float-array [5]) 0)]
+    (.setStroke g dashed)
+    (.setColor g Color/GRAY)
+    (doseq [t [10 19]
+            :let [y (+ origin-y (time->height renderer (* (- t 9) 60)))]]
+      (.drawLine g origin-x y (+ origin-x area-width) y))
+    (.setStroke g stroke)))
+
+(defn render-chart
+  ([g width height worktimes]
+   (render-chart (make-renderer g width height) worktimes))
+  ([{:keys [^Graphics2D g width height margin] :as renderer} worktimes]
+   (.setColor g Color/WHITE)
+   (.fillRect g 0 0 width height)
+   (.setColor g Color/BLACK)
+   (.drawRect g margin margin (- width (* 2 margin)) (- height (* 2 margin)))
+   (render-worktimes renderer worktimes)
+   (render-scale renderer)
+   (render-dashes renderer)))
