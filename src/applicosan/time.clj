@@ -39,6 +39,11 @@
      :month (.getValue (.getMonth zdt))
      :day (.getDayOfMonth zdt)}))
 
+(defn time-map [dt]
+  (let [^ZonedDateTime zdt (->zoned-datetime dt)]
+    {:hour (.getHour zdt)
+     :minute (.getMinute zdt)}))
+
 (defn ^ZonedDateTime now []
   (->zoned-datetime (LocalDateTime/now)))
 

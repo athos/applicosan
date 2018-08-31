@@ -1,4 +1,5 @@
 (ns applicosan.models.worktime.chart
+  (:require [applicosan.time :as time])
   (:import [java.awt BasicStroke Color Graphics2D]))
 
 (set! *warn-on-reflection* true)
@@ -19,12 +20,17 @@
 (defn time->height [{:keys [area-height]} t]
   (* area-height (/ t 720.0)))
 
+(defn time-value [t]
+  (let [{:keys [hour minute]} (time/time-map t)]
+    (+ (* 60 hour) minute)))
+
 (defn render-worktimes [renderer worktimes]
   (let [{:keys [^Graphics2D g width height interval origin-x origin-y]} renderer
         bar-width (long (- (/ (- width interval) 20.0) interval))]
     (doseq [[i {:keys [in out]}] (map-indexed vector worktimes)
             :when (and in out)
-            :let [worktime (- out in)
+            :let [[in out] (map time-value [in out])
+                  worktime (- out in)
                   color (condp <= (- worktime 540)
                           45 Color/RED
                           15 Color/ORANGE
