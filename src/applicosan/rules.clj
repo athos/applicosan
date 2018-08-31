@@ -12,6 +12,9 @@
 (defn reply [{:keys [channel]} {:keys [slack]} message]
   (slack/post-message slack channel message))
 
+(defn post-worktime-chart [{:keys [channel]} {:keys [slack]} worktimes]
+  (slack/post-image slack channel (worktime/generate-chart worktimes)))
+
 (defn stringify-time [^long t]
   (if (> (Math/abs t) 60)
     (let [m (Math/abs (long (rem t 60)))]
@@ -20,12 +23,14 @@
     (format "%d分" (long t))))
 
 (defn notify-overtime [event {:keys [db] :as opts} & {:keys [excludes-today?]}]
-  (let [worktimes (worktime/latest-worktimes db)
-        {:keys [last total]} (worktime/aggregate-overtime worktimes)]
+  (let [{:keys [year month]} (time/date-map (time/today))
+        worktimes (worktime/latest-worktimes db)
+        {:keys [last total]} (worktime/aggregate-overtime worktimes year month)]
     (reply event opts
            (cond->> (str "今月の残業時間は" (stringify-time total) "だよ")
              (not excludes-today?)
-             (str "今日の残業時間は" (stringify-time last) "、")))))
+             (str "今日の残業時間は" (stringify-time last) "、")))
+    (post-worktime-chart event opts worktimes)))
 
 (defrule hello #"^hi|hello|おは|こんにちは" [event {:keys [db] :as opts}]
   (worktime/clock-in! db (event-time event))

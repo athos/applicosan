@@ -1,5 +1,7 @@
 (ns applicosan.models.worktime
   (:require [applicosan.db :as db]
+            [applicosan.image :as image]
+            [applicosan.models.worktime.chart :as chart]
             [applicosan.time :as time]
             [drains.core :as d]
             [drains.utils :as dutils]
@@ -43,3 +45,9 @@
                                  :average (dutils/mean)
                                  :last (d/drain (completing (fn [_ t] t)) 0)}))]
     (d/reduce drain worktimes)))
+
+(defn generate-chart [worktimes]
+  (let [width 300, height 150]
+    (image/generate-image width height
+      (fn [g]
+        (chart/render-chart g width height worktimes)))))
