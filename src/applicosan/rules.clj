@@ -22,8 +22,8 @@
            (if (= m 0) "ちょうど" (str m "分"))))
     (format "%d分" (long t))))
 
-(defn notify-overtime [event {:keys [db] :as opts} & {:keys [excludes-today?]}]
-  (let [{:keys [year month]} (time/date-map (time/today))
+(defn notify-overtime [event time {:keys [db] :as opts} & {:keys [excludes-today?]}]
+  (let [{:keys [year month]} (time/date-map time)
         worktimes (worktime/latest-worktimes db)
         {:keys [last total]} (worktime/aggregate-overtime worktimes year month)]
     (reply event opts
@@ -45,16 +45,17 @@
     (reply event opts (str "出社時間を" hours ":" minutes "で記録したよ！"))))
 
 (defrule bye #"^bye|goodbye|さようなら|ばいばい|おつかれ|お疲れ" [event {:keys [db] :as opts}]
-  (worktime/clock-out! db (event-time event))
-  (reply event opts "おつかれさまー👋")
-  (notify-overtime event opts))
+  (let [time (event-time event)]
+    (worktime/clock-out! db time)
+    (reply event opts "おつかれさまー👋")
+    (notify-overtime event time opts)))
 
 (defrule clock-out #"(\d{1,2}):(\d{1,2})退社" [event {:keys [db] :as opts}]
   (let [[_ hours minutes] &match
         clockout-time (time/today (Long/parseLong hours) (Long/parseLong minutes))]
     (worktime/clock-out! db clockout-time)
     (reply event opts (str "退社時間を" hours ":" minutes "で記録したよ！"))
-    (notify-overtime event opts)))
+    (notify-overtime event clockout-time opts)))
 
 (defrule check-overtime #"残業時間を?(?:確認|教えて)" [event opts]
-  (notify-overtime event opts :excludes-today? true))
+  (notify-overtime event (event-time event) opts :excludes-today? true))
