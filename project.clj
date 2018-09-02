@@ -20,6 +20,6 @@
                    :dependencies
                    [[org.clojure/tools.namespace "0.2.11"]
                     [ring/ring-mock "0.3.2"]]}
-             :uberjar {:main applicosan.core
+             :uberjar {:main applicosan.main
                        :aot :all
                        :uberjar-name "applicosan-standalone.jar"}})

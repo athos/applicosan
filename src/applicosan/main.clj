@@ -1,4 +1,4 @@
-(ns applicosan.core
+(ns applicosan.main
   (:gen-class)
   (:require [applicosan.db]
             [applicosan.controllers]
