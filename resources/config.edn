@@ -12,10 +12,10 @@
                     :bot-name #duct/env "SLACK_BOT_NAME"
                     :bot-token #duct/env "SLACK_BOT_TOKEN"}
 
- [:duct/router :applicosan/handler] {:controllers #ig/ref :applicosan/controllers
-                                     :routes #ig/ref :applicosan/routes}
- :applicosan/controllers {:slack #ig/ref :applicosan/slack
-                          :cache #ig/ref :applicosan/event-cache
-                          :db #ig/ref :applicosan/db
-                          :acme-challenge #duct/env "ACME_CHALLENGE"}
- :applicosan/routes {}}
+ :duct.module/ataraxy {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
+                       [:post "/slack"] [:slack]}
+
+ :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
+ :applicosan.handler/slack {:slack #ig/ref :applicosan/slack
+                            :cache #ig/ref :applicosan/event-cache
+                            :db #ig/ref :applicosan/db}}

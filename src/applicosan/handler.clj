@@ -1,17 +1,17 @@
-(ns applicosan.controllers
+(ns applicosan.handler
   (:require [applicosan.rules.core :as rules]
             [applicosan.rules]
             [clojure.string :as str]
             [integrant.core :as ig]
             [ring.util.response :as res]))
 
-(defn acme [response]
+(defmethod ig/init-key ::acme [_ {:keys [acme-challenge]}]
   (fn [{[_ challenge] :ataraxy/result}]
-    (if response
-      (res/response (str challenge "." response))
+    (if acme-challenge
+      (res/response (str challenge "." acme-challenge))
       (res/not-found "Not Found"))))
 
-(defn handle-mention [event-id event {:keys [slack cache] :as opts}]
+(defn- handle-mention [event-id event {:keys [slack cache] :as opts}]
   (when (and (not= (:user event) (:id slack))
              (not= (:username event) (:name slack))
              (not (contains? @cache event-id)))
@@ -19,18 +19,14 @@
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
       (future (rules/apply-rule message event opts)))))
 
-(defn slack-event-handler [opts]
+(defmethod ig/init-key ::slack [_ opts]
   (fn [{{:keys [type] :as params} :body-params}]
     (case type
       "url_verification" (res/response {:challenge (:challenge params)})
-      "event_callback" (let [{:keys [type] :as event} (:event params)]
+      "event_callback" (let [{:keys [type] :as event} (:event params)
+                             opts (update opts :db :db)]
                          (case type
                            "app_mention" (handle-mention (:event_id params) event opts)
                            nil)
                          (res/response "ok"))
       (res/response "ok"))))
-
-(defmethod ig/init-key :applicosan/controllers [_ opts]
-  (let [acme-challenge (:acme-challenge opts)]
-    {:acme (acme acme-challenge)
-     :slack (slack-event-handler (update opts :db :db))}))
