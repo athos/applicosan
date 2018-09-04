@@ -29,5 +29,5 @@
                           {:name "filetype" :content "png"}
                           {:name "channels" :content channel}]}))
 
-(defmethod ig/init-key :app/slack [_ {:keys [env]}]
-  (make-client (:slack-bot-token env) (:slack-bot-id env) (:slack-bot-name env)))
+(defmethod ig/init-key :applicosan/slack [_ opts]
+  (make-client (:bot-token opts) (:bot-id opts) (:bot-name opts)))

@@ -1,0 +1,21 @@
+{:duct.core/project-ns applicosan
+ :duct.core/environment :development
+
+ :duct.module/logging {}
+ :duct.module.web/api {}
+ :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]}
+
+ :applicosan/db {:uri #duct/env "MONGODB_URI"}
+
+ :applicosan/event-cache {:ttl 90000}
+ :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
+                    :bot-name #duct/env "SLACK_BOT_NAME"
+                    :bot-token #duct/env "SLACK_BOT_TOKEN"}
+
+ [:duct/router :applicosan/handler] {:controllers #ig/ref :applicosan/controllers
+                                     :routes #ig/ref :applicosan/routes}
+ :applicosan/controllers {:slack #ig/ref :applicosan/slack
+                          :cache #ig/ref :applicosan/event-cache
+                          :db #ig/ref :applicosan/db
+                          :acme-challenge #duct/env "ACME_CHALLENGE"}
+ :applicosan/routes {}}

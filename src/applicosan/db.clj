@@ -7,12 +7,12 @@
 
 (declare ensure-indexes)
 
-(defmethod ig/init-key :app/db [_ {:keys [env]}]
-  (let [db (mg/connect-via-uri (:mongodb-uri env))]
+(defmethod ig/init-key :applicosan/db [_ {:keys [uri]}]
+  (let [db (mg/connect-via-uri uri)]
     (ensure-indexes db)
     db))
 
-(defmethod ig/halt-key! :app/db [_ {:keys [conn]}]
+(defmethod ig/halt-key! :applicosan/db [_ {:keys [conn]}]
   (mg/disconnect conn))
 
 (defn ensure-indexes [{:keys [db]}]

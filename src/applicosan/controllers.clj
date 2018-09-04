@@ -20,7 +20,7 @@
       (future (rules/apply-rule message event opts)))))
 
 (defn slack-event-handler [opts]
-  (fn [{{:keys [type] :as params} :params}]
+  (fn [{{:keys [type] :as params} :body-params}]
     (case type
       "url_verification" (res/response {:challenge (:challenge params)})
       "event_callback" (let [{:keys [type] :as event} (:event params)]
@@ -30,7 +30,7 @@
                          (res/response "ok"))
       (res/response "ok"))))
 
-(defmethod ig/init-key :app/controllers [_ {:keys [env] :as opts}]
-  (let [acme-challenge (get env :acme-challenge)]
+(defmethod ig/init-key :applicosan/controllers [_ opts]
+  (let [acme-challenge (:acme-challenge opts)]
     {:acme (acme acme-challenge)
      :slack (slack-event-handler (update opts :db :db))}))
