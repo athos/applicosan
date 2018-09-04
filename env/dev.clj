@@ -1,5 +1,7 @@
 (ns dev
   (:require [applicosan.main :as app]
+            [clojure.pprint :refer :all]
+            [clojure.repl :refer :all]
             [clojure.tools.namespace.repl :refer [refresh]]
             [integrant.core :as ig]))
 
