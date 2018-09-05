@@ -9,7 +9,7 @@
             [integrant.repl.state :refer [config system]]))
 
 (defn read-config []
-  (duct/read-config (io/resource "config.edn")))
+  (duct/read-config (io/resource "applicosan/config.edn")))
 
 (clojure.tools.namespace.repl/set-refresh-dirs "src")
 
