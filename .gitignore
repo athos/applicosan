@@ -3,5 +3,6 @@
 *~
 /.lein-*
 /.nrepl-*
+/.env-vars
 /.envrc
 /logs/
