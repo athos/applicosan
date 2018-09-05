@@ -1,7 +1,6 @@
 (ns applicosan.main
   (:gen-class)
-  (:require [applicosan.core :as app]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [duct.core :as duct]))
 
 (duct/load-hierarchy)

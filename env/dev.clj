@@ -1,6 +1,5 @@
 (ns dev
-  (:require [applicosan.core]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.pprint :refer :all]
             [clojure.repl :refer :all]
             [clojure.tools.namespace.repl :refer [refresh]]

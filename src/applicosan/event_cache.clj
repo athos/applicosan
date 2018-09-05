@@ -1,4 +1,4 @@
-(ns applicosan.core
+(ns applicosan.event-cache
   (:require [clojure.core.cache :as cache]
             [integrant.core :as ig]))
 
