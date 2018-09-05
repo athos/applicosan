@@ -15,7 +15,8 @@
      :origin-x (+ margin interval)
      :origin-y (+ margin interval)
      :area-width (- width (* 2 margin) (* 2 interval))
-     :area-height (- height (* 2 margin) (* 2 interval))}))
+     :area-height (- height (* 2 margin) (* 2 interval))
+     :bar-width (long (- (/ (- width interval) 20.0) interval))}))
 
 (defn time->height [{:keys [area-height]} t]
   (* area-height (/ t 720.0)))
@@ -25,8 +26,7 @@
     (+ (* 60 hour) minute)))
 
 (defn render-worktimes [renderer worktimes]
-  (let [{:keys [^Graphics2D g width height interval origin-x origin-y]} renderer
-        bar-width (long (- (/ (- width interval) 20.0) interval))]
+  (let [{:keys [^Graphics2D g width height interval origin-x origin-y bar-width]} renderer]
     (doseq [[i {:keys [in out]}] (map-indexed vector worktimes)
             :when (and in out)
             :let [[in out] (map time-value [in out])
@@ -41,6 +41,18 @@
                  (+ origin-y (time->height renderer (- in 540)))
                  bar-width
                  (time->height renderer worktime)))))
+
+(defn mask-previous-month [{:keys [^Graphics2D g] :as renderer} [w :as worktimes]]
+  (let [interval (:interval renderer)
+        n (->> worktimes
+               (take-while #(and (= (:year w) (:year %))
+                                 (= (:month w) (:month %))))
+               count)]
+    (when (not= n (count worktimes))
+      (.setColor g (Color. 150 150 150 128))
+      (.fillRect g (:margin renderer) (:margin renderer)
+                 (+ (/ interval 2.0) (* n (+ (:bar-width renderer) interval)))
+                 (+ (:area-height renderer) (* 2 interval))))))
 
 (defn render-scale [renderer]
   (let [half-len 3
@@ -74,5 +86,6 @@
    (.setColor g Color/BLACK)
    (.drawRect g margin margin (- width (* 2 margin)) (- height (* 2 margin)))
    (render-worktimes renderer worktimes)
+   (mask-previous-month renderer worktimes)
    (render-scale renderer)
    (render-dashes renderer)))
