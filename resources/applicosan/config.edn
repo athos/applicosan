@@ -16,6 +16,7 @@
                        [:post "/slack"] [:slack]}
 
  :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
- :applicosan.handler/slack {:slack #ig/ref :applicosan/slack
+ :applicosan.handler/slack {:logger #ig/ref :duct/logger
+                            :slack #ig/ref :applicosan/slack
                             :cache #ig/ref :applicosan/event-cache
                             :db #ig/ref :applicosan/db}}

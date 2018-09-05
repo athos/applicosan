@@ -2,6 +2,7 @@
   (:require [applicosan.rules.core :as rules]
             [applicosan.rules]
             [clojure.string :as str]
+            [duct.logger :as logger]
             [integrant.core :as ig]
             [ring.util.response :as res]))
 
@@ -19,14 +20,16 @@
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
       (future (rules/apply-rule message event opts)))))
 
+(defn- handle-event [event-id {:keys [type] :as event} {:keys [logger] :as opts}]
+  (logger/log logger :info ::event-arrived {:type type})
+  (case type
+    "app_mention" (handle-mention event-id event (update opts :db :db))
+    nil)
+  (res/response "ok"))
+
 (defmethod ig/init-key ::slack [_ opts]
   (fn [{{:keys [type] :as params} :body-params}]
     (case type
       "url_verification" (res/response {:challenge (:challenge params)})
-      "event_callback" (let [{:keys [type] :as event} (:event params)
-                             opts (update opts :db :db)]
-                         (case type
-                           "app_mention" (handle-mention (:event_id params) event opts)
-                           nil)
-                         (res/response "ok"))
+      "event_callback" (handle-event (:event_id params) (:event params) opts)
       (res/response "ok"))))
