@@ -18,5 +18,8 @@
  :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
  :applicosan.handler/slack {:logger #ig/ref :duct/logger
                             :slack #ig/ref :applicosan/slack
-                            :cache #ig/ref :applicosan/event-cache
-                            :db #ig/ref :applicosan/db}}
+                            :cache #ig/ref :applicosan/event-cache}
+
+ :applicosan/rules {:logger #ig/ref :duct/logger
+                    :slack #ig/ref :applicosan/slack
+                    :db #ig/ref :applicosan/db}}
