@@ -11,9 +11,9 @@
       (swap! rules conj rule))
     name))
 
-(defmacro defrule [rule-name pattern [event & args] & body]
+(defmacro defrule [rule-name pattern [event opts] & body]
   `(do
-     (defn ~rule-name [~'&match ~event ~@args] ~@body)
+     (defn ~rule-name [~'&match ~event ~opts] ~@body)
      (add-rule! defined-rules
                 (symbol (name (ns-name *ns*)) (name '~rule-name))
                 ~pattern

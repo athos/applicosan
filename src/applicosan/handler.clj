@@ -11,13 +11,13 @@
       (res/response (str challenge "." acme-challenge))
       (res/not-found "Not Found"))))
 
-(defn- handle-mention [event-id event {:keys [slack cache]}]
+(defn- handle-mention [event-id event {:keys [slack cache rules]}]
   (when (and (not= (:user event) (:id slack))
              (not= (:username event) (:name slack))
              (not (contains? @cache event-id)))
     (swap! cache assoc event-id event)
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
-      (future (rules/apply-rule message event)))))
+      (future (rules/apply-rule rules message event)))))
 
 (defn- handle-event [event-id {:keys [type] :as event} {:keys [logger] :as opts}]
   (logger/log logger :info ::event-arrived {:type type})
