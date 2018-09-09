@@ -11,16 +11,21 @@
       (res/response (str challenge "." acme-challenge))
       (res/not-found "Not Found"))))
 
-(defn- handle-mention [event-id event {:keys [slack cache rules]}]
+(defn- handle-mention [event-id event {:keys [slack cache rules logger]}]
   (when (and (not= (:user event) (:id slack))
              (not= (:username event) (:name slack))
              (not (contains? @cache event-id)))
     (swap! cache assoc event-id event)
     (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
-      (future (rules/apply-rule rules message event)))))
+      (logger/log logger :debug ::handle-mention {:message message})
+      (future
+        (try
+          (rules/apply-rule rules message event)
+          (catch Throwable t
+            (logger/log logger :error ::error-on-mention t)))))))
 
 (defn- handle-event [event-id {:keys [type] :as event} {:keys [logger] :as opts}]
-  (logger/log logger :info ::event-arrived {:type type})
+  (logger/log logger :info ::event-arrived {:type type :id event-id})
   (case type
     "app_mention" (handle-mention event-id event (update opts :db :db))
     nil)
