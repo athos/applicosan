@@ -16,10 +16,14 @@
            (if (= m 0) "ちょうど" (str m "分"))))
     (format "%d分" (long t))))
 
-(defn notify-overtime [event time {:keys [db] :as opts} & {:keys [excludes-today?]}]
+(defn aggregate-overtime [db time]
   (let [{:keys [year month]} (time/date-map time)
-        worktimes (worktime/latest-worktimes db)
-        {:keys [last total]} (worktime/aggregate-overtime worktimes year month)]
+        worktimes (worktime/latest-worktimes db)]
+    (-> (worktime/aggregate-overtime worktimes year month)
+        (assoc :worktimes worktimes))))
+
+(defn notify-overtime [event time {:keys [db] :as opts} & {:keys [excludes-today?]}]
+  (let [{:keys [last total worktimes]} (aggregate-overtime db time)]
     (utils/reply event opts
            (cond->> (str "今月の残業時間は" (stringify-time total) "だよ")
              (not excludes-today?)
@@ -27,8 +31,9 @@
     (post-worktime-chart event opts worktimes)))
 
 (defrule hello #"^hi|hello|おは|こんにちは" [event {:keys [db] :as opts}]
-  (worktime/clock-in! db (utils/event-time event))
-  (let [{:keys [total]} (worktime/aggregate-overtime db)]
+  (let [time (utils/event-time event)
+        {:keys [total]} (aggregate-overtime db time)]
+    (worktime/clock-in! db time)
     (utils/reply event opts "おはよー☀️")
     (utils/reply event opts (str "今月の残業時間は" (stringify-time total) "だよ"))))
 
