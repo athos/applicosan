@@ -20,7 +20,8 @@
         (logger/log logger :debug ::handle-mention {:message message})
         (future
           (try
-            (rules/apply-rule rules message event)
+            (or (rules/apply-rule rules message event)
+                (logger/log logger :warn ::no-rules-applied {:message message}))
             (catch Throwable t
               (logger/log logger :error ::error-on-mention t)))))
       (logger/log logger :info ::event-duplicated {:id event-id}))))
