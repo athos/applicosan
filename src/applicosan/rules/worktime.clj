@@ -60,4 +60,5 @@
   (notify-overtime event (utils/event-time event) opts :excludes-today? true))
 
 (defmethod ig/init-key :applicosan.rules/worktime [_ opts]
-  (rules/->rule-set opts [hello clock-in bye clock-out check-overtime]))
+  (rules/->rule-set (update opts :db :db)
+                    [hello clock-in bye clock-out check-overtime]))
