@@ -1,20 +1,12 @@
 (ns applicosan.rules.core)
 
-(def defined-rules (atom []))
-
-(defn add-rule! [rules name pattern action]
-  (let [rule {:name name :pattern pattern :action action}]
-    (if-let [[i _] (->> (filter #(= (:name (second %)) name)
-                                (map-indexed vector @rules))
-                        first)]
-      (swap! rules assoc i rule)
-      (swap! rules conj rule))
-    name))
-
 (defmacro defrule [rule-name pattern [event opts] & body]
-  `(do
-     (defn ~rule-name [~'&match ~event ~opts] ~@body)
-     (add-rule! defined-rules
-                (symbol (name (ns-name *ns*)) (name '~rule-name))
-                ~pattern
-                #'~rule-name)))
+  `(def ~(with-meta rule-name {:pattern pattern})
+     (with-meta
+       (fn [~'&match ~event ~opts]
+         ~@body)
+       {:pattern ~pattern})))
+
+(defn ->rule-set [opts rules]
+  {:rules rules
+   :opts opts})

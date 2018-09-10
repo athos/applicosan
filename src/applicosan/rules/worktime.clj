@@ -2,7 +2,8 @@
   (:require [applicosan.models.worktime :as worktime]
             [applicosan.rules.core :as rules :refer [defrule]]
             [applicosan.slack :as slack]
-            [applicosan.time :as time])
+            [applicosan.time :as time]
+            [integrant.core :as ig])
   (:import [java.util Date]))
 
 (defn event-time [{:keys [event_ts]}]
@@ -59,3 +60,6 @@
 
 (defrule check-overtime #"残業時間を?(?:確認|教えて)" [event opts]
   (notify-overtime event (event-time event) opts :excludes-today? true))
+
+(defmethod ig/init-key :applicosan.rules/worktime [_ opts]
+  (rules/->rule-set opts [hello clock-in bye clock-out check-overtime]))

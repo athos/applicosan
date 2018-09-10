@@ -22,5 +22,7 @@
                             :rules #ig/ref :applicosan/rules}
 
  :applicosan/rules {:logger #ig/ref :duct/logger
-                    :slack #ig/ref :applicosan/slack
-                    :db #ig/ref :applicosan/db}}
+                    :rule-sets [#ig/ref :applicosan.rules/worktime]}
+ :applicosan.rules/worktime {:logger #ig/ref :duct/logger
+                             :slack #ig/ref :applicosan/slack
+                             :db #ig/ref :applicosan/db}}
