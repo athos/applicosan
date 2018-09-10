@@ -7,7 +7,7 @@
 
  :applicosan/db {:uri #duct/env "MONGODB_URI"}
 
- :applicosan/event-cache {:ttl 90000}
+ :applicosan/event-cache {:ttl 90000 :disabled? true}
  :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
                     :bot-name #duct/env "SLACK_BOT_NAME"
                     :bot-token #duct/env "SLACK_BOT_TOKEN"}
