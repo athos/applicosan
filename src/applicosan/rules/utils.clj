@@ -7,5 +7,7 @@
   (let [[_ s ms] (re-matches #"^(\d+)\.(\d{3})\d+$" event_ts)]
     (Date. (+ (* 1000 (Long/parseLong s)) (Long/parseLong ms)))))
 
-(defn reply [{:keys [channel]} {:keys [slack]} message]
-  (slack/post-message slack channel message))
+(defn reply [{:keys [channel user]} {:keys [slack]} message & {:keys [mention?]}]
+  (let [message (cond->> message
+                  mention? (str "<@" user "> "))]
+    (slack/post-message slack channel message)))

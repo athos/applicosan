@@ -34,26 +34,28 @@
   (let [time (utils/event-time event)
         {:keys [total]} (aggregate-overtime db time)]
     (worktime/clock-in! db time)
-    (utils/reply event opts "おはよー☀️")
+    (utils/reply event opts "おはよー☀️" :mention? true)
     (utils/reply event opts (str "今月の残業時間は" (stringify-time total) "だよ"))))
 
 (defrule clock-in #"(\d{1,2}):(\d{1,2})出社" [event {:keys [db] :as opts}]
   (let [[_ hours minutes] &match
-        clockin-time (time/today (Long/parseLong hours) (Long/parseLong minutes))]
+        clockin-time (time/today (Long/parseLong hours) (Long/parseLong minutes))
+        message (str "出社時間を" hours ":" minutes "で記録したよ！")]
     (worktime/clock-in! db clockin-time)
-    (utils/reply event opts (str "出社時間を" hours ":" minutes "で記録したよ！"))))
+    (utils/reply event opts message :mention? true)))
 
 (defrule bye #"^bye|goodbye|さようなら|ばいばい|おつかれ|お疲れ" [event {:keys [db] :as opts}]
   (let [time (utils/event-time event)]
     (worktime/clock-out! db time)
-    (utils/reply event opts "おつかれさまー👋")
+    (utils/reply event opts "おつかれさまー👋" :mention? true)
     (notify-overtime event time opts)))
 
 (defrule clock-out #"(\d{1,2}):(\d{1,2})退社" [event {:keys [db] :as opts}]
   (let [[_ hours minutes] &match
-        clockout-time (time/today (Long/parseLong hours) (Long/parseLong minutes))]
+        clockout-time (time/today (Long/parseLong hours) (Long/parseLong minutes))
+        message (str "退社時間を" hours ":" minutes "で記録したよ！")]
     (worktime/clock-out! db clockout-time)
-    (utils/reply event opts (str "退社時間を" hours ":" minutes "で記録したよ！"))
+    (utils/reply event opts message :mention? true)
     (notify-overtime event clockout-time opts)))
 
 (defrule check-overtime #"残業時間を?(?:確認|教えて)" [event opts]
