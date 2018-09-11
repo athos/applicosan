@@ -6,6 +6,7 @@
  :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]}
 
  :applicosan/db {:uri #duct/env "MONGODB_URI"}
+ :applicosan.db/mongodb {:db #ig/ref :applicosan/db}
 
  :applicosan/event-cache {:ttl 90000 :disabled? true}
  :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
@@ -25,6 +26,6 @@
                     #ig/ref :applicosan.rules/ack]
  :applicosan.rules/worktime {:logger #ig/ref :duct/logger
                              :slack #ig/ref :applicosan/slack
-                             :db #ig/ref :applicosan/db}
+                             :db #ig/ref :applicosan.db/mongodb}
  :applicosan.rules/ack {:logger #ig/ref :duct/logger
                         :slack #ig/ref :applicosan/slack}}

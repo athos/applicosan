@@ -17,3 +17,6 @@
 
 (defn ensure-indexes [{:keys [db]}]
   (mc/ensure-index db COLL_WORKTIME {:year -1 :month -1 :day -1} {:unique true}))
+
+(defmethod ig/init-key :applicosan.db/mongodb [_ {:keys [db]}]
+  (:db db))
