@@ -17,7 +17,7 @@
                  [org.clojure/core.cache "0.7.1"]
                  [ring/ring-json "0.4.0"]]
   :plugins [[duct/lein-duct "0.10.6"]
-            [lein-with-env-vars "0.2.0-SNAPSHOT"]]
+            [lein-with-env-vars "0.2.0"]]
   :env-vars [".env-vars"]
   :main ^:skip-aot applicosan.main
   :profiles {:repl {:repl-options {:init-ns user}}
