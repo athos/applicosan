@@ -29,5 +29,16 @@
                           {:name "filetype" :content "png"}
                           {:name "channels" :content channel}]}))
 
+(defn post-attachments
+  ([client channel attachments]
+   (post-attachments client channel nil attachments))
+  ([client channel text attachments]
+   (http/post (api-endpoint "/chat.postMessage")
+              {:headers (merge (basic-slack-headers client)
+                               {"Content-Type" "application/json; charset=utf-8"})
+               :body (cheshire/generate-string (cond-> {:channel channel
+                                                        :attachments (vec attachments)}
+                                                 text (assoc :text text)))})))
+
 (defmethod ig/init-key :applicosan/slack [_ opts]
   (make-client (:bot-token opts) (:bot-id opts) (:bot-name opts)))
