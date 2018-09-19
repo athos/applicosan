@@ -30,7 +30,7 @@
 (defn- handle-event [event-id {:keys [type] :as event} {:keys [logger] :as opts}]
   (logger/log logger :info ::event-arrived {:type type :id event-id})
   (case type
-    "app_mention" (handle-mention event-id event (update opts :db :db))
+    "app_mention" (handle-mention event-id event opts)
     nil)
   (res/response "ok"))
 
