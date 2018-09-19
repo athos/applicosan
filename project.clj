@@ -12,7 +12,8 @@
                  [duct/core "0.6.2"]
                  [duct/module.ataraxy "0.2.0"]
                  [duct/module.logging "0.3.1"]
-                 [duct/module.web "0.6.4"]
+                 [duct/module.web "0.6.4"
+                  :exclusions [ns-tracker org.msgpack/msgpack org.webjars/normalize.css]]
                  [integrant "0.6.3"]
                  [org.clojure/core.cache "0.7.1"]]
   :plugins [[duct/lein-duct "0.10.6"]
