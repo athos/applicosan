@@ -1,6 +1,7 @@
 (ns applicosan.handler
   (:require [applicosan.event-cache :as cache]
             [applicosan.rules :as rules]
+            [cheshire.core :as cheshire]
             [clojure.string :as str]
             [duct.logger :as logger]
             [integrant.core :as ig]
@@ -33,9 +34,23 @@
     nil)
   (res/response "ok"))
 
-(defmethod ig/init-key ::slack [_ opts]
-  (fn [{{:keys [type] :as params} :body-params}]
-    (case type
-      "url_verification" (res/response {:challenge (:challenge params)})
-      "event_callback" (handle-event (:event_id params) (:event params) opts)
-      (res/response "ok"))))
+(defn- handle-interaction [{:keys [channel] :as params} {:keys [logger]}]
+  (logger/log logger :info ::interaction-arrived
+              {:id (:callback_id params) :actions (mapv :value (:actions params))})
+  (res/response {:channel (:id channel) :text "Thank you for pressing me!"}))
+
+(defn- extract-params [req]
+  (or (:body-params req)
+      (some-> (:params req)
+              :payload
+              (cheshire/parse-string keyword))))
+
+(defmethod ig/init-key ::slack [_ {:keys [logger] :as opts}]
+  (fn [req]
+    (logger/log logger :debug ::request-arrived req)
+    (let [{:keys [type] :as params} (extract-params req)]
+      (case type
+        "url_verification" (res/response {:challenge (:challenge params)})
+        "event_callback" (handle-event (:event_id params) (:event params) opts)
+        "interactive_message" (handle-interaction params opts)
+        (res/response "ok")))))
