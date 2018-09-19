@@ -11,3 +11,6 @@
   (let [message (cond->> message
                   mention? (str "<@" user "> "))]
     (slack/post-message slack channel message)))
+
+(defn reply-with-attachments [{:keys [channel]} {:keys [slack]} attachments]
+  (slack/post-attachments slack channel attachments))

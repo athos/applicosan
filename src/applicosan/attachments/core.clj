@@ -26,3 +26,9 @@
 
 (defn action-name-of [attachment value]
   (:name (action-of attachment value)))
+
+(defattachment press-me {}
+  {:name :press
+   :text "Press me!"
+   :type :button
+   :value "pressed"})
