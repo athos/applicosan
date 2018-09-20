@@ -1,5 +1,5 @@
 (ns applicosan.handler
-  (:require [applicosan.event-cache :as cache]
+  (:require [applicosan.event :as event]
             [applicosan.rules :as rules]
             [cheshire.core :as cheshire]
             [clojure.string :as str]
@@ -13,25 +13,23 @@
       (res/response (str challenge "." acme-challenge))
       (res/not-found "Not Found"))))
 
-(defn- handle-mention [event-id event {:keys [slack cache rules logger]}]
-  (when (and (not= (:user event) (:id slack))
-             (not= (:username event) (:name slack)))
-    (if (cache/cache-event! cache event-id event)
-      (let [message (str/replace (:text event) (str "<@" (:id slack) "> ") "")]
-        (logger/log logger :debug ::handle-mention {:message message})
-        (future
-          (try
-            (or (rules/apply-rule rules message event)
-                (logger/log logger :warn ::no-rules-applied {:message message}))
-            (catch Throwable t
-              (logger/log logger :error ::error-on-mention t)))))
-      (logger/log logger :info ::event-duplicated {:id event-id}))))
-
-(defn- handle-event [event-id {:keys [type] :as event} {:keys [logger] :as opts}]
-  (logger/log logger :info ::event-arrived {:type type :id event-id})
-  (case type
-    "app_mention" (handle-mention event-id event opts)
-    nil)
+(defn- handle-event [params {:keys [factory rules logger] :as opts}]
+  (try
+    (if-let [{:keys [::event/type] :as event} (event/make-event factory params)]
+      (do (logger/log logger :info ::event-arrived {:type type})
+          (future
+            (try
+              (let [message (::event/message event)]
+                (or (rules/apply-rule rules message event)
+                    (logger/log logger :warn ::no-rules-applied {:message message})))
+              (catch Throwable t
+                (logger/log logger :error ::error-on-event-handling t)))))
+      (logger/log logger :warn ::event-ignored params))
+    (catch Exception e
+      (let [ed (ex-data e)]
+        (if-let [cause (:cause ed)]
+          (logger/log logger :warn cause (dissoc ed :cause))
+          (throw e)))))
   (res/response "ok"))
 
 (defn- handle-interaction [{:keys [channel] :as params} {:keys [logger]}]
@@ -51,6 +49,4 @@
     (let [{:keys [type] :as params} (extract-params req)]
       (case type
         "url_verification" (res/response {:challenge (:challenge params)})
-        "event_callback" (handle-event (:event_id params) (:event params) opts)
-        "interactive_message" (handle-interaction params opts)
-        (res/response "ok")))))
+        (handle-event params opts)))))

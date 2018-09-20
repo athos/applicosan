@@ -1,6 +1,7 @@
 (ns applicosan.event
   (:require [applicosan.event-cache :as cache]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [integrant.core :as ig]))
 
 (defrecord EventFactory [bot-id bot-name cache])
 
@@ -27,3 +28,6 @@
       (assoc ::type :interaction)
       (update :channel :id)
       (update :user :id)))
+
+(defmethod ig/init-key :applicosan.event/factory [_ {:keys [slack cache]}]
+  (->EventFactory (:id slack) (:name slack) cache))

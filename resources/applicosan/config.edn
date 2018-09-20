@@ -12,14 +12,15 @@
  :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
                     :bot-name #duct/env "SLACK_BOT_NAME"
                     :bot-token #duct/env "SLACK_BOT_TOKEN"}
+ :applicosan.event/factory {:slack #ig/ref :applicosan/slack
+                            :cache #ig/ref :applicosan/event-cache}
 
  :duct.module/ataraxy {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
                        [:post "/slack"] [:slack]}
 
  :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
  :applicosan.handler/slack {:logger #ig/ref :duct/logger
-                            :slack #ig/ref :applicosan/slack
-                            :cache #ig/ref :applicosan/event-cache
+                            :factory #ig/ref :applicosan.event/factory
                             :rules #ig/ref :applicosan/rules}
 
  :applicosan/rules [#ig/ref :applicosan.rules/worktime
