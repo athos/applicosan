@@ -16,11 +16,17 @@
 (defn api-endpoint [path]
   (str "https://slack.com/api" path))
 
-(defn post-message [client channel text]
-  (http/post (api-endpoint "/chat.postMessage")
-             {:headers (merge (basic-slack-headers client)
-                              {"Content-Type" "application/json"})
-              :body (cheshire/generate-string {:channel channel :text text})}))
+(defn post-message
+  ([client channel contents]
+   (post-message client channel contents {}))
+  ([client channel {:keys [text attachments]} {:keys [url]}]
+   (let [body (cond-> {:channel channel}
+                text (assoc :text text)
+                attachments (assoc :attachments (vec attachments)))]
+     (http/post (or url (api-endpoint "/chat.postMessage"))
+                {:headers (merge (basic-slack-headers client)
+                                 {"Content-Type" "application/json; charset=utf-8"})
+                 :body (cheshire/generate-string body)}))))
 
 (defn post-image [client channel image]
   (http/post (api-endpoint "/files.upload")
@@ -28,17 +34,6 @@
               :multipart [{:name "file" :content (image/->bytes image)}
                           {:name "filetype" :content "png"}
                           {:name "channels" :content channel}]}))
-
-(defn post-attachments
-  ([client channel attachments]
-   (post-attachments client channel nil attachments))
-  ([client channel text attachments]
-   (http/post (api-endpoint "/chat.postMessage")
-              {:headers (merge (basic-slack-headers client)
-                               {"Content-Type" "application/json; charset=utf-8"})
-               :body (cheshire/generate-string (cond-> {:channel channel
-                                                        :attachments (vec attachments)}
-                                                 text (assoc :text text)))})))
 
 (defmethod ig/init-key :applicosan/slack [_ opts]
   (make-client (:bot-token opts) (:bot-id opts) (:bot-name opts)))

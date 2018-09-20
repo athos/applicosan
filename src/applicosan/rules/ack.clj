@@ -13,7 +13,7 @@
   (utils/reply event opts "pong" :mention? true))
 
 (defrule test (c/message #"^test") [event opts]
-  (utils/reply-with-attachments event opts [attach/press-me]))
+  (utils/reply event opts [attach/press-me]))
 
 (defrule pressed (c/interaction attach/press-me :press) [event opts]
   (utils/reply event opts "Thank you for pressing me!"))
