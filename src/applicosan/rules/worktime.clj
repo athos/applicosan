@@ -1,5 +1,6 @@
 (ns applicosan.rules.worktime
-  (:require [applicosan.models.worktime :as worktime]
+  (:require [applicosan.condition :as c]
+            [applicosan.models.worktime :as worktime]
             [applicosan.rules.core :as rules :refer [defrule]]
             [applicosan.rules.utils :as utils]
             [applicosan.slack :as slack]
@@ -30,27 +31,27 @@
              (str "今日の残業時間は" (stringify-time last) "、")))
     (post-worktime-chart event opts worktimes)))
 
-(defrule hello #"^hi|hello|おは|こんにちは" [event {:keys [db] :as opts}]
+(defrule hello (c/message #"^hi|hello|おは|こんにちは") [event {:keys [db] :as opts}]
   (let [time (utils/event-time event)
         {:keys [total]} (aggregate-overtime db time)]
     (worktime/clock-in! db time)
     (utils/reply event opts "おはよー☀️" :mention? true)
     (utils/reply event opts (str "今月の残業時間は" (stringify-time total) "だよ"))))
 
-(defrule clock-in #"(\d{1,2}):(\d{1,2})出社" [event {:keys [db] :as opts}]
+(defrule clock-in (c/message #"(\d{1,2}):(\d{1,2})出社") [event {:keys [db] :as opts}]
   (let [[_ hours minutes] &match
         clockin-time (time/today (Long/parseLong hours) (Long/parseLong minutes))
         message (str "出社時間を" hours ":" minutes "で記録したよ！")]
     (worktime/clock-in! db clockin-time)
     (utils/reply event opts message :mention? true)))
 
-(defrule bye #"^bye|goodbye|さようなら|ばいばい|おつかれ|お疲れ" [event {:keys [db] :as opts}]
+(defrule bye (c/message #"^bye|goodbye|さようなら|ばいばい|おつかれ|お疲れ") [event {:keys [db] :as opts}]
   (let [time (utils/event-time event)]
     (worktime/clock-out! db time)
     (utils/reply event opts "おつかれさまー👋" :mention? true)
     (notify-overtime event time opts)))
 
-(defrule clock-out #"(\d{1,2}):(\d{1,2})退社" [event {:keys [db] :as opts}]
+(defrule clock-out (c/message #"(\d{1,2}):(\d{1,2})退社") [event {:keys [db] :as opts}]
   (let [[_ hours minutes] &match
         clockout-time (time/today (Long/parseLong hours) (Long/parseLong minutes))
         message (str "退社時間を" hours ":" minutes "で記録したよ！")]
@@ -58,7 +59,7 @@
     (utils/reply event opts message :mention? true)
     (notify-overtime event clockout-time opts)))
 
-(defrule check-overtime #"残業時間を?(?:確認|教えて)" [event opts]
+(defrule check-overtime (c/message #"残業時間を?(?:確認|教えて)") [event opts]
   (notify-overtime event (utils/event-time event) opts :excludes-today? true))
 
 (defmethod ig/init-key :applicosan.rules/worktime [_ opts]

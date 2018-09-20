@@ -1,11 +1,11 @@
 (ns applicosan.rules
-  (:require [applicosan.rules.core :as rules]
-            [applicosan.rules.worktime]
+  (:require [applicosan.condition :as condition]
+            [applicosan.rules.core :as rules]
             [integrant.core :as ig]))
 
-(defn apply-rule [rules message event]
-  (reduce (fn [_ {:keys [pattern action opts]}]
-            (when-let [match (re-find pattern message)]
+(defn apply-rule [rules event]
+  (reduce (fn [_ {:keys [condition action opts]}]
+            (when-let [match (condition/match condition event)]
               (action match event opts)
               (reduced true)))
           nil
@@ -14,7 +14,7 @@
 (defmethod ig/init-key :applicosan/rules [_ rule-sets]
   (->> (for [{:keys [rules opts]} rule-sets
              rule rules]
-         {:pattern (get (meta rule) :pattern)
+         {:condition (get (meta rule) :condition)
           :action rule
           :opts opts})
        (into [])))

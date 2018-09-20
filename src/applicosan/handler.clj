@@ -19,9 +19,8 @@
       (do (logger/log logger :info ::event-arrived {:type type})
           (future
             (try
-              (let [message (::event/message event)]
-                (or (rules/apply-rule rules message event)
-                    (logger/log logger :warn ::no-rules-applied {:message message})))
+              (or (rules/apply-rule rules event)
+                  (logger/log logger :warn ::no-rules-applied event))
               (catch Throwable t
                 (logger/log logger :error ::error-on-event-handling t)))))
       (logger/log logger :warn ::event-ignored params))
