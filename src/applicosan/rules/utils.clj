@@ -3,8 +3,8 @@
             [applicosan.slack :as slack])
   (:import [java.util Date]))
 
-(defn event-time [{:keys [event_ts]}]
-  (let [[_ s ms] (re-matches #"^(\d+)\.(\d{3})\d+$" event_ts)]
+(defn event-time [{:keys [ts]}]
+  (let [[_ s ms] (re-matches #"^(\d+)\.(\d{3})\d+$" ts)]
     (Date. (+ (* 1000 (Long/parseLong s)) (Long/parseLong ms)))))
 
 (defn reply [{:keys [channel user]} {:keys [slack]} message & {:keys [mention?]}]

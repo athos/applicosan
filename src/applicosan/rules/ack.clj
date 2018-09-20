@@ -15,5 +15,8 @@
 (defrule test (c/message #"^test") [event opts]
   (utils/reply-with-attachments event opts [attach/press-me]))
 
+(defrule pressed (c/interaction attach/press-me :press) [event opts]
+  (utils/reply event opts "Thank you for pressing me!"))
+
 (defmethod ig/init-key :applicosan.rules/ack [_ opts]
-  (rules/->rule-set opts [ping test]))
+  (rules/->rule-set opts [ping test pressed]))

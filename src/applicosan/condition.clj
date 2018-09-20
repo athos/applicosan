@@ -1,5 +1,7 @@
 (ns applicosan.condition
-  (:require [applicosan.event :as event]))
+  (:refer-clojure :exclude [or])
+  (:require [applicosan.attachments.core :as attach]
+            [applicosan.event :as event]))
 
 (defprotocol ICondition
   (-match [this event]))
@@ -14,3 +16,26 @@
 
 (defn message [pattern]
   (->MessageCondition pattern))
+
+(defrecord InteractionCondition [attachment action-name]
+  ICondition
+  (-match [this event]
+    (->> (:actions event)
+         (sequence (comp (map #(attach/action-of attachment (:value %)))
+                         (filter #(= (:name %) action-name))))
+         first)))
+
+(defn interaction [attachment action-name]
+  (->InteractionCondition attachment action-name))
+
+(defrecord OrCondition [conditions]
+  ICondition
+  (-match [this event]
+    (reduce (fn [_ condition]
+              (when-let [matched (-match condition event)]
+                (reduced matched)))
+            nil
+            conditions)))
+
+(defn or [& conditions]
+  (->OrCondition (vec conditions)))

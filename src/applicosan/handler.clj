@@ -31,11 +31,6 @@
           (throw e)))))
   (res/response "ok"))
 
-(defn- handle-interaction [{:keys [channel] :as params} {:keys [logger]}]
-  (logger/log logger :info ::interaction-arrived
-              {:id (:callback_id params) :actions (mapv :value (:actions params))})
-  (res/response {:channel (:id channel) :text "Thank you for pressing me!"}))
-
 (defn- extract-params [req]
   (or (:body-params req)
       (some-> (:params req)
