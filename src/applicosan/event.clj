@@ -20,7 +20,7 @@
     "app_mention"
     (when (and (not= (:user event) (:bot-id factory))
                (not= (:username event) (:bot-name factory)))
-      (let [event-id (:id params)]
+      (let [event-id (:event_id params)]
         (if (or (nil? cache) ;; cache disabled
                 (cache-event! cache event-id event)) ;; event already cached
           (let [message (str/replace (:text event) (str "<@" (:bot-id factory) "> ") "")]
