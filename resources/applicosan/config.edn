@@ -2,8 +2,10 @@
  :duct.core/environment :development
 
  :duct.module/logging {}
- :duct.module.web/api {}
- :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]}
+ :duct.core/handler {:router #ig/ref :duct/router}
+ :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]
+                          :handler #ig/ref :duct.core/handler
+                          :logger #ig/ref :duct/logger}
 
  :applicosan/db {:uri #duct/env "MONGODB_URI"}
  :applicosan.db/mongodb {:db #ig/ref :applicosan/db}
@@ -14,8 +16,12 @@
  :applicosan.event/factory {:cache {:ttl 90000 :disabled? true}
                             :slack #ig/ref :applicosan/slack}
 
- :duct.module/ataraxy {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
-                       [:post "/slack"] [:slack]}
+ :duct.router/ataraxy {:routes {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
+                                [:post "/slack"] ^:api [:slack]}
+                       :handlers {:acme #ig/ref :applicosan.handler/acme
+                                  :slack #ig/ref :applicosan.handler/slack}
+                       :middleware {:api #ig/ref :applicosan.middleware/api}}
+ :applicosan.middleware/api {}
 
  :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
  :applicosan.handler/slack {:logger #ig/ref :duct/logger

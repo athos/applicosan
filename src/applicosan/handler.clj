@@ -32,7 +32,7 @@
   (res/response "ok"))
 
 (defn- extract-params [req]
-  (or (:body-params req)
+  (or (:params req)
       (some-> (:params req)
               :payload
               (cheshire/parse-string keyword))))
