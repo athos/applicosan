@@ -8,12 +8,11 @@
  :applicosan/db {:uri #duct/env "MONGODB_URI"}
  :applicosan.db/mongodb {:db #ig/ref :applicosan/db}
 
- :applicosan/event-cache {:ttl 90000 :disabled? true}
  :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
                     :bot-name #duct/env "SLACK_BOT_NAME"
                     :bot-token #duct/env "SLACK_BOT_TOKEN"}
- :applicosan.event/factory {:slack #ig/ref :applicosan/slack
-                            :cache #ig/ref :applicosan/event-cache}
+ :applicosan.event/factory {:cache {:ttl 90000 :disabled? true}
+                            :slack #ig/ref :applicosan/slack}
 
  :duct.module/ataraxy {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
                        [:post "/slack"] [:slack]}
