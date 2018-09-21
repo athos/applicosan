@@ -1,5 +1,6 @@
 (ns applicosan.slack
   (:require [applicosan.image :as image]
+            [applicosan.attachments.core :as attach]
             [clj-http.client :as http]
             [cheshire.core :as cheshire]
             [integrant.core :as ig]))
@@ -22,7 +23,7 @@
   ([client channel {:keys [text attachments]} {:keys [url]}]
    (let [body (cond-> {:channel channel}
                 text (assoc :text text)
-                attachments (assoc :attachments (vec attachments)))]
+                attachments (assoc :attachments (mapv attach/->map attachments)))]
      (http/post (or url (api-endpoint "/chat.postMessage"))
                 {:headers (merge (basic-slack-headers client)
                                  {"Content-Type" "application/json; charset=utf-8"})
