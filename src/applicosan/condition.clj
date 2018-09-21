@@ -32,13 +32,19 @@
   (-applicable? [this event]
     (= (::event/type event) :interaction))
   (-match [this event]
-    (->> (:actions event)
-         (sequence (comp (map #(attach/action-of attachment (:value %)))
-                         (filter #(= (:name %) action-name))))
-         first)))
+    (when (= (:id attachment) (:callback_id event))
+      (let [actions (:actions event)]
+        (-> (if action-name
+              (let [value (attach/value-of attachment action-name)]
+                (filterv #(= (:value %) value) actions))
+              actions)
+            not-empty)))))
 
-(defn interaction [attachment action-name]
-  (->InteractionCondition attachment action-name))
+(defn interaction
+  ([attachment]
+   (interaction attachment nil))
+  ([attachment action-name]
+   (->InteractionCondition attachment action-name)))
 
 (defrecord OrCondition [conditions]
   ICondition

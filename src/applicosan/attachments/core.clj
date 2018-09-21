@@ -24,6 +24,12 @@
 (defn ->map [{:keys [id] :as attachment}]
   (into {:callback_id id} (dissoc attachment :id)))
 
+(defn value-of [attachment action-name]
+  (->> (:actions attachment)
+       (filter #(= (:name %) action-name))
+       first
+       :value))
+
 (defn action-of [attachment value]
   (first (filter #(= (:value %) value) (:actions attachment))))
 
