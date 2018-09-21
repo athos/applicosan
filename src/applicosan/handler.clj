@@ -31,11 +31,11 @@
           (throw e)))))
   (res/response "ok"))
 
-(defn- extract-params [req]
-  (or (:params req)
-      (some-> (:params req)
-              :payload
-              (cheshire/parse-string keyword))))
+(defn- extract-params [{:keys [params]}]
+  (let [payload (:payload params)]
+    (if (string? payload)
+      (cheshire/parse-string payload keyword)
+      params)))
 
 (defmethod ig/init-key ::slack [_ {:keys [logger] :as opts}]
   (fn [req]
