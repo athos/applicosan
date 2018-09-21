@@ -7,19 +7,22 @@
 (s/def ::value string?)
 (s/def ::action (s/keys :req-un [::name ::text ::type]))
 
+(defrecord Attachment [id fallback actions])
+
+(defn make-attachment [id {:keys [fallback] :as opts} actions]
+  (let [fallback (or fallback
+                     "Your UI doesn't seem to support interactive message.")]
+    (merge (->Attachment id fallback (vec actions))
+           (dissoc opts :fallback))))
+
 (s/fdef defattachment
   :args (s/cat :id symbol? :actions (s/* ::action)))
 
-(defrecord Attachment [id fallback actions])
-
 (defmacro defattachment [id & actions]
-  (let [{:keys [fallback] :as opts} (meta id)
-        default-fallback  "Your UI doesn't seem to support interactive message."
-        opts (assoc opts :fallback (or fallback default-fallback))]
-    `(def ~(with-meta id {})
-       (merge (map->Attachment {:id ~(str (ns-name *ns*) "/" (name id))
-                                :actions [~@actions]})
-              ~opts))))
+  `(def ~(with-meta id {})
+     (make-attachment ~(str (ns-name *ns*) "/" (name id))
+                      ~(meta id)
+                      ~(vec actions))))
 
 (defn ->map [{:keys [id] :as attachment}]
   (into {:callback_id id} (dissoc attachment :id)))
