@@ -1,11 +1,4 @@
-(ns applicosan.attachments.core
-  (:require [clojure.spec.alpha :as s]))
-
-(s/def ::name keyword?)
-(s/def ::text string?)
-(s/def ::type #{:button})
-(s/def ::value string?)
-(s/def ::action (s/keys :req-un [::name ::text ::type]))
+(ns applicosan.attachments.core)
 
 (defrecord Attachment [id fallback actions])
 
@@ -15,14 +8,17 @@
     (merge (->Attachment id fallback (vec actions))
            (dissoc opts :fallback))))
 
-(s/fdef defattachment
-  :args (s/cat :id symbol? :actions (s/* ::action)))
-
-(defmacro defattachment [id & actions]
-  `(def ~(with-meta id {})
-     (make-attachment ~(str (ns-name *ns*) "/" (name id))
-                      ~(meta id)
-                      ~(vec actions))))
+(defmacro defattachment [id arg]
+  (let [callback-id (str (ns-name *ns*) "/" (name id))
+        opts (meta id)]
+    `(def ~(with-meta id {})
+       ~(if (symbol? arg)
+          `(-> ~arg
+               (assoc :id ~callback-id)
+               ~@(when opts [`(merge ~opts)]))
+          `(make-attachment ~callback-id
+                            ~opts
+                            ~(vec arg))))))
 
 (defn ->map [{:keys [id] :as attachment}]
   (into {:callback_id id} (dissoc attachment :id)))
@@ -40,7 +36,7 @@
   (:name (action-of attachment value)))
 
 (defattachment press-me
-  {:name :press
-   :text "Press me!"
-   :type :button
-   :value "pressed"})
+  [{:name :press
+    :text "Press me!"
+    :type :button
+    :value "pressed"}])
