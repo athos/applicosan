@@ -32,6 +32,26 @@
 (defn action-of [attachment value]
   (first (filter #(= (:value %) value) (:actions attachment))))
 
+(defn button
+  ([id text]
+   (button id text (name id)))
+  ([id text value & {:as opts}]
+   (merge {:type :button
+           :name id
+           :text text
+           :value value}
+          opts)))
+
+(defn menu [id text options]
+  {:type :select
+   :name id
+   :text text
+   :options (vec options)})
+
+(defn option [text value]
+  {:text text
+   :value value})
+
 (defn action-name-of [attachment value]
   (:name (action-of attachment value)))
 
