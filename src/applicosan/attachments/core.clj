@@ -55,6 +55,12 @@
 (defn action-name-of [attachment value]
   (:name (action-of attachment value)))
 
+(defn prepend-action [attachment action]
+  (update attachment :actions #(vec (cons action %))))
+
+(defn append-action [attachment action]
+  (update attachment :actions conj action))
+
 (defattachment press-me
   [{:name :press
     :text "Press me!"
