@@ -42,13 +42,14 @@
                  bar-width
                  (time->height renderer worktime)))))
 
-(defn mask-previous-month [{:keys [^Graphics2D g] :as renderer} [w :as worktimes]]
-  (let [interval (:interval renderer)
+(defn mask-previous-month [{:keys [^Graphics2D g] :as renderer} worktimes]
+  (let [[w & worktimes] (reverse worktimes)
+        interval (:interval renderer)
         n (->> worktimes
-               (take-while #(and (= (:year w) (:year %))
+               (drop-while #(and (= (:year w) (:year %))
                                  (= (:month w) (:month %))))
                count)]
-    (when (not= n (count worktimes))
+    (when (> n 0)
       (.setColor g (Color. 150 150 150 128))
       (.fillRect g (:margin renderer) (:margin renderer)
                  (+ (/ interval 2.0) (* n (+ (:bar-width renderer) interval)))
