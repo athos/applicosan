@@ -33,6 +33,14 @@
   ZonedDateTime
   (->zoned-datetime [this] this))
 
+(defn datetime
+  ([year month day hour minute]
+   (datetime year month day hour minute 0))
+  ([year month day hour minute second]
+   (-> (LocalDateTime/of (int year) (int month) (int day)
+                         (int hour) (int minute) (int second))
+       ->zoned-datetime)))
+
 (defn date-map [dt]
   (let [^ZonedDateTime zdt (->zoned-datetime dt)]
     {:year (.getYear zdt)

@@ -65,7 +65,7 @@
       (fn [g]
         (chart/render-chart g width height worktimes)))))
 
-(defn- ^long ->int [^String s]
+(defn- ->int [^String s]
   (Long/parseLong s))
 
 (defn parse-tsv [lines]
@@ -79,6 +79,6 @@
      :month month
      :day day
      :in (when (and in-h in-m in-s)
-           (time/->date (LocalDateTime/of year month day (->int in-h) (->int in-m) (->int in-s))))
+           (time/->date (time/datetime year month day (->int in-h) (->int in-m) (->int in-s))))
      :out (when (and out-h out-m out-s)
-            (time/->date (LocalDateTime/of year month day (->int out-h) (->int out-m) (->int out-s))))}))
+            (time/->date (time/datetime year month day (->int out-h) (->int out-m) (->int out-s))))}))
