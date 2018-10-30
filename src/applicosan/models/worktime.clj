@@ -3,12 +3,23 @@
             [applicosan.image :as image]
             [applicosan.models.worktime.chart :as chart]
             [applicosan.time :as time]
+            [clojure.spec.alpha :as s]
             [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]
             [monger.operators :as mo]
             [monger.query :as mq])
   (:import [java.util Date]))
+
+(s/def ::year int?)
+(s/def ::month int?)
+(s/def ::day int?)
+(s/def ::in inst?)
+(s/def ::out inst?)
+
+(s/def ::worktime
+  (s/keys :req-un [::year ::month ::day]
+          :opt-un [::in ::out]))
 
 (defn- record-time! [db type dt]
   {:pre (#{:in :out} type)}
