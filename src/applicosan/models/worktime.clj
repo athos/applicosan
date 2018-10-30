@@ -40,7 +40,7 @@
    (record-time! db :out dt)))
 
 (defn latest-worktimes
-  ([db] (latest-worktimes db 20))
+  ([db] (latest-worktimes db 30))
   ([db n]
    (->> (mq/with-collection db db/COLL_WORKTIME
           (mq/find {})
