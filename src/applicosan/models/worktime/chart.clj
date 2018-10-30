@@ -4,10 +4,11 @@
 
 (set! *warn-on-reflection* true)
 
-(defn make-renderer [g width height]
+(defn make-renderer [g width height max-items]
   (let [margin 10
         interval 2]
     {:g g
+     :max-items max-items
      :width width
      :height height
      :margin margin
@@ -16,7 +17,7 @@
      :origin-y (+ margin interval)
      :area-width (- width (* 2 margin) (* 2 interval))
      :area-height (- height (* 2 margin) (* 2 interval))
-     :bar-width (long (- (/ (- width interval) 20.0) interval))}))
+     :bar-width (long (- (/ (- width interval) (double max-items)) interval))}))
 
 (defn time->height [{:keys [area-height]} t]
   (* area-height (/ t 720.0)))
@@ -80,13 +81,17 @@
 
 (defn render-chart
   ([g width height worktimes]
-   (render-chart (make-renderer g width height) worktimes))
-  ([{:keys [^Graphics2D g width height margin] :as renderer} worktimes]
-   (.setColor g Color/WHITE)
-   (.fillRect g 0 0 width height)
-   (.setColor g Color/BLACK)
-   (.drawRect g margin margin (- width (* 2 margin)) (- height (* 2 margin)))
-   (render-worktimes renderer worktimes)
-   (mask-previous-month renderer worktimes)
-   (render-scale renderer)
-   (render-dashes renderer)))
+   (render-chart g width height 20 worktimes))
+  ([g width height max-items worktimes]
+   (render-chart (make-renderer g width height max-items) worktimes))
+  ([{:keys [^Graphics2D g width height margin max-items] :as renderer} worktimes]
+   (let [extra-items (max 0 (- (count worktimes) max-items))
+         worktimes (drop extra-items worktimes)]
+     (.setColor g Color/WHITE)
+     (.fillRect g 0 0 width height)
+     (.setColor g Color/BLACK)
+     (.drawRect g margin margin (- width (* 2 margin)) (- height (* 2 margin)))
+     (render-worktimes renderer worktimes)
+     (mask-previous-month renderer worktimes)
+     (render-scale renderer)
+     (render-dashes renderer))))
