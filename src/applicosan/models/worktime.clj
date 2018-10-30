@@ -4,12 +4,14 @@
             [applicosan.models.worktime.chart :as chart]
             [applicosan.time :as time]
             [clojure.spec.alpha :as s]
+            [clojure.string :as str]
             [drains.core :as d]
             [drains.utils :as dutils]
             [monger.collection :as mc]
             [monger.operators :as mo]
             [monger.query :as mq])
-  (:import [java.util Date]))
+  (:import [java.util Date]
+           [java.time LocalDateTime]))
 
 (s/def ::year int?)
 (s/def ::month int?)
@@ -62,3 +64,21 @@
     (image/generate-image width height
       (fn [g]
         (chart/render-chart g width height worktimes)))))
+
+(defn- ^long ->int [^String s]
+  (Long/parseLong s))
+
+(defn parse-tsv [lines]
+  (for [line lines
+        :let [[year month day in out] (str/split line #"\t")
+              [year month day] (map ->int [year month day])
+              _ (prn :in in :out out)
+              [_ in-h in-m in-s] (some->> in (re-find #"^[^ ]+? (\d\d):(\d\d):(\d\d)"))
+              [_ out-h out-m out-s] (some->> out (re-find #"^[^ ]+? (\d\d):(\d\d):(\d\d)"))]]
+    {:year year
+     :month month
+     :day day
+     :in (when (and in-h in-m in-s)
+           (time/->date (LocalDateTime/of year month day (->int in-h) (->int in-m) (->int in-s))))
+     :out (when (and out-h out-m out-s)
+            (time/->date (LocalDateTime/of year month day (->int out-h) (->int out-m) (->int out-s))))}))
