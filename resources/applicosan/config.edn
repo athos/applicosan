@@ -1,37 +1,42 @@
-{:duct.core/project-ns applicosan
- :duct.core/environment :development
+{:duct.profile/base
+ {:duct.core/project-ns applicosan
+  :duct.core/environment :production
 
- :duct.module/logging {}
- :duct.core/handler {:router #ig/ref :duct/router}
- :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]
-                          :handler #ig/ref :duct.core/handler
-                          :logger #ig/ref :duct/logger}
+  :duct.server.http/jetty {:port #duct/env ["PORT" Int :or 8080]
+                           :handler #ig/ref :applicosan/handler
+                           :logger #ig/ref :duct/logger
+                           :join? false}
 
- :applicosan/db {:uri #duct/env "MONGODB_URI"}
- :applicosan.db/mongodb {:db #ig/ref :applicosan/db}
+  :applicosan/db {:uri #duct/env "MONGODB_URI"}
+  :applicosan.db/mongodb {:db #ig/ref :applicosan/db}
 
- :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
-                    :bot-name #duct/env "SLACK_BOT_NAME"
-                    :bot-token #duct/env "SLACK_BOT_TOKEN"}
- :applicosan.event/factory {:cache {:ttl 90000 :disabled? true}
-                            :slack #ig/ref :applicosan/slack}
+  :applicosan/slack {:bot-id #duct/env "SLACK_BOT_ID"
+                     :bot-name #duct/env "SLACK_BOT_NAME"
+                     :bot-token #duct/env "SLACK_BOT_TOKEN"}
+  :applicosan.event/factory {:cache {:ttl 90000}
+                             :slack #ig/ref :applicosan/slack}
 
- :duct.router/ataraxy {:routes {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
+  :applicosan/handler {:routes {[:get "/.well-known/acme-challenge/" challenge] [:acme challenge]
                                 [:post "/slack"] ^:api [:slack]}
                        :handlers {:acme #ig/ref :applicosan.handler/acme
                                   :slack #ig/ref :applicosan.handler/slack}
                        :middleware {:api #ig/ref :applicosan.middleware/api}}
- :applicosan.middleware/api {}
+  :applicosan.middleware/api {}
 
- :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
- :applicosan.handler/slack {:logger #ig/ref :duct/logger
-                            :factory #ig/ref :applicosan.event/factory
-                            :rules #ig/ref :applicosan/rules}
+  :applicosan.handler/acme {:acme-challenge #duct/env "ACME_CHALLENGE"}
+  :applicosan.handler/slack {:logger #ig/ref :duct/logger
+                             :factory #ig/ref :applicosan.event/factory
+                             :rules #ig/ref :applicosan/rules}
 
- :applicosan/rules [#ig/ref :applicosan.rules/worktime
-                    #ig/ref :applicosan.rules/ack]
- :applicosan.rules/worktime {:logger #ig/ref :duct/logger
-                             :slack #ig/ref :applicosan/slack
-                             :db #ig/ref :applicosan.db/mongodb}
- :applicosan.rules/ack {:logger #ig/ref :duct/logger
-                        :slack #ig/ref :applicosan/slack}}
+  :applicosan/rules [#ig/ref :applicosan.rules/worktime
+                     #ig/ref :applicosan.rules/ack]
+  :applicosan.rules/worktime {:logger #ig/ref :duct/logger
+                              :slack #ig/ref :applicosan/slack
+                              :db #ig/ref :applicosan.db/mongodb}
+  :applicosan.rules/ack {:logger #ig/ref :duct/logger
+                         :slack #ig/ref :applicosan/slack}}
+ :duct.profile/local #duct/include "local"
+ :duct.profile/dev #duct/include "dev"
+ :duct.profile/prod {}
+
+ :duct.module/logging {}}

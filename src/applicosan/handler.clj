@@ -1,6 +1,7 @@
 (ns applicosan.handler
   (:require [applicosan.event :as event]
             [applicosan.rules :as rules]
+            [ataraxy.core :as ataraxy]
             [cheshire.core :as cheshire]
             [clojure.string :as str]
             [duct.logger :as logger]
@@ -44,3 +45,6 @@
       (case type
         "url_verification" (res/response {:challenge (:challenge params)})
         (handle-event params opts)))))
+
+(defmethod ig/init-key :applicosan/handler [_ options]
+  (ataraxy/handler options))

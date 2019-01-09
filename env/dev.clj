@@ -14,4 +14,7 @@
 
 (duct/load-hierarchy)
 
-(integrant.repl/set-prep! (comp duct/prep read-config))
+(def profiles
+  [:duct.profile/dev :duct.profile/local])
+
+(integrant.repl/set-prep! #(duct/prep-config (read-config) profiles))

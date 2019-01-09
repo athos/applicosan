@@ -1,8 +1,8 @@
 /target/
 /private
 *~
+/resources/local.edn
 /.lein-*
 /.nrepl-*
-/.env-vars
 /.envrc
 /logs/

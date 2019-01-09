@@ -1,0 +1,3 @@
+{:duct.core/environment :development
+ :applicosan.event/factory {:cache {:ttl 90000 :disabled? true}
+                            :slack #ig/ref :applicosan/slack}}
