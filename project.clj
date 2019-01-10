@@ -6,12 +6,12 @@
   :min-lein-version "2.0.0"
   :source-paths ["src"]
   :dependencies [[org.clojure/clojure "1.10.0"]
+                 [ataraxy "0.4.2"]
                  [cheshire "5.8.1"]
                  [clj-http "3.9.1"]
                  [com.novemberain/monger "3.5.0"]
                  [drains "0.1.0"]
                  [duct/core "0.7.0"]
-                 [duct/module.ataraxy "0.3.0"]
                  [duct/module.logging "0.4.0"]
                  [duct/server.http.jetty "0.2.0" :exclusions [duct/logger]]
                  [integrant "0.7.0"]
