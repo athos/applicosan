@@ -4,7 +4,6 @@
             [applicosan.condition :as c]
             [applicosan.rules.core :as rules :refer [defrule]]
             [applicosan.rules.utils :as utils]
-            [applicosan.slack :as slack]
             [duct.logger :as logger]
             [integrant.core :as ig]))
 

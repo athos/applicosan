@@ -1,6 +1,5 @@
 (ns applicosan.rules.utils
-  (:require [applicosan.models.worktime :as worktime]
-            [applicosan.slack :as slack])
+  (:require [applicosan.slack :as slack])
   (:import [java.util Date]))
 
 (defn event-time [{:keys [ts]}]

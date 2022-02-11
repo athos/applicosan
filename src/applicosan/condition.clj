@@ -19,9 +19,9 @@
 
 (defrecord MessageCondition [pattern]
   ICondition
-  (-applicable? [this event]
+  (-applicable? [_ event]
     (= (::event/type event) :message))
-  (-match [this event]
+  (-match [_ event]
     (re-find pattern (::event/message event))))
 
 (defn message [pattern]
@@ -29,9 +29,9 @@
 
 (defrecord InteractionCondition [attachment action-name]
   ICondition
-  (-applicable? [this event]
+  (-applicable? [_ event]
     (= (::event/type event) :interaction))
-  (-match [this event]
+  (-match [_ event]
     (when (= (:id attachment) (:callback_id event))
       (let [actions (:actions event)]
         (-> (if action-name
@@ -48,9 +48,9 @@
 
 (defrecord OrCondition [conditions]
   ICondition
-  (-applicable? [this event]
+  (-applicable? [_ event]
     (some #(-applicable? % event) conditions))
-  (-match [this event]
+  (-match [_ event]
     (some #(and (-applicable? % event)
                 (-match % event))
           conditions)))

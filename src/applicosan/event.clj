@@ -5,7 +5,7 @@
 
 (defrecord EventFactory [bot-id bot-name cache])
 
-(defmulti ->event* (fn [factory {:keys [type]}] type))
+(defmulti ->event* (fn [_factory {:keys [type]}] type))
 (defmethod ->event* :default [_ _] nil)
 
 (defn make-event [factory params]

@@ -1,6 +1,5 @@
 (ns applicosan.rules
   (:require [applicosan.condition :as condition]
-            [applicosan.rules.core :as rules]
             [integrant.core :as ig]))
 
 (defn apply-rule [rules event]

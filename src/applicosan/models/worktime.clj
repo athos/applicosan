@@ -9,8 +9,7 @@
             [drains.utils :as dutils]
             [mongo-driver-3.collection :as mc]
             [mongo-driver-3.operator :as mo])
-  (:import [java.util Date]
-           [java.time LocalDateTime]))
+  (:import [java.util Date]))
 
 (s/def ::year int?)
 (s/def ::month int?)

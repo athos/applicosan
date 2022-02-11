@@ -27,7 +27,7 @@
     (+ (* 60 hour) minute)))
 
 (defn render-worktimes [renderer worktimes]
-  (let [{:keys [^Graphics2D g width height interval origin-x origin-y bar-width]} renderer]
+  (let [{:keys [^Graphics2D g interval origin-x origin-y bar-width]} renderer]
     (doseq [[i {:keys [in out]}] (map-indexed vector worktimes)
             :when (and in out)
             :let [[in out] (map time-value [in out])

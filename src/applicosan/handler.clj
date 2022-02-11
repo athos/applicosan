@@ -3,7 +3,6 @@
             [applicosan.rules :as rules]
             [ataraxy.core :as ataraxy]
             [cheshire.core :as cheshire]
-            [clojure.string :as str]
             [duct.logger :as logger]
             [integrant.core :as ig]
             [ring.util.response :as res]))
@@ -14,7 +13,7 @@
       (res/response (str challenge "." acme-challenge))
       (res/not-found "Not Found"))))
 
-(defn- handle-event [params {:keys [factory rules logger] :as opts}]
+(defn- handle-event [params {:keys [factory rules logger]}]
   (try
     (if-let [{:keys [::event/type] :as event} (event/make-event factory params)]
       (do (logger/log logger :info ::event-arrived {:type type})

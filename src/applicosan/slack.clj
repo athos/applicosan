@@ -1,8 +1,8 @@
 (ns applicosan.slack
-  (:require [applicosan.image :as image]
-            [applicosan.attachments.core :as attach]
-            [clj-http.client :as http]
+  (:require [applicosan.attachments.core :as attach]
+            [applicosan.image :as image]
             [cheshire.core :as cheshire]
+            [clj-http.client :as http]
             [integrant.core :as ig]))
 
 (defrecord SlackClient [token id name])
