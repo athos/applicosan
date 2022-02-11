@@ -7,9 +7,8 @@
             [clojure.string :as str]
             [drains.core :as d]
             [drains.utils :as dutils]
-            [monger.collection :as mc]
-            [monger.operators :as mo]
-            [monger.query :as mq])
+            [mongo-driver-3.collection :as mc]
+            [mongo-driver-3.operator :as mo])
   (:import [java.util Date]
            [java.time LocalDateTime]))
 
@@ -25,9 +24,9 @@
 
 (defn- record-time! [db type dt]
   {:pre (#{:in :out} type)}
-  (mc/update db db/COLL_WORKTIME (time/date-map dt)
-             {mo/$set {type (time/->date dt)}}
-             {:upsert true}))
+  (mc/update-one db db/COLL_WORKTIME (time/date-map dt)
+                 {mo/$set {type (time/->date dt)}}
+                 {:upsert? true}))
 
 (defn clock-in!
   ([db] (clock-in! db (time/now)))
@@ -42,10 +41,9 @@
 (defn latest-worktimes
   ([db] (latest-worktimes db 30))
   ([db n]
-   (->> (mq/with-collection db db/COLL_WORKTIME
-          (mq/find {})
-          (mq/sort {:year -1 :month -1 :day -1})
-          (mq/limit n))
+   (->> (mc/find db db/COLL_WORKTIME {}
+                 {:sort {:year -1 :month -1 :day -1}
+                  :limit n})
         reverse)))
 
 (defn aggregate-overtime [worktimes year month]
