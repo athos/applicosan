@@ -1,0 +1,33 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    - name: Setup Clojure CLI
+      uses: DeLaGuardo/setup-clojure@3.7
+      with:
+        lein: 'latest'
+    - name: Cache deps
+      uses: actions/cache@v1
+      with:
+        path: |
+          ~/.m2
+        key: ${{ runner.os }}-${{ hashFiles('project.clj') }}
+        restore-keys: |
+          ${{ runner.os }}-
+    - name: Install deps
+      run: |
+        lein deps
+    - name: Run check
+      run: lein check
+    - name: Run tests
+      run: lein test
