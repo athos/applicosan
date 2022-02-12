@@ -1,5 +1,5 @@
 # applicosan
-[![CircleCI](https://circleci.com/gh/athos/applicosan.svg?style=shield)](https://circleci.com/gh/athos/applicosan)
+[![test](https://github.com/athos/applicosan/actions/workflows/test.yml/badge.svg)](https://github.com/athos/applicosan/actions/workflows/test.yml)
 
 My personal Slack bot
 
