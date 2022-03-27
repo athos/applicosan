@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :source-paths ["src"]
-  :dependencies [[org.clojure/clojure "1.10.3"]
+  :dependencies [[org.clojure/clojure "1.11.0"]
                  [ataraxy "0.4.2"]
                  [cheshire "5.10.2"]
                  [clj-http "3.12.3"]
@@ -14,9 +14,9 @@
                  [duct/module.logging "0.5.0"]
                  [duct/server.http.jetty "0.2.1" :exclusions [duct/logger]]
                  [integrant "0.8.0"]
-                 [mongo-driver-3 "0.5.0"]
+                 [mongo-driver-3 "0.6.0"]
                  [org.clojure/core.cache "1.0.225"]
-                 [org.mongodb/mongodb-driver-sync "4.4.2"]
+                 [org.mongodb/mongodb-driver-sync "4.5.1"]
                  [org.slf4j/slf4j-nop "1.7.36"]
                  [ring/ring-core "1.9.5" :exclusions [clj-time commons-fileupload]]
                  [ring/ring-json "0.5.1"]]
