@@ -5,9 +5,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :source-paths ["src"]
-  :dependencies [[org.clojure/clojure "1.11.0"]
-                 [ataraxy "0.4.2"]
-                 [cheshire "5.10.2"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
+                 [ataraxy "0.4.3"]
+                 [cheshire "5.11.0"]
                  [clj-http "3.12.3"]
                  [drains "0.1.0"]
                  [duct/core "0.8.0"]
@@ -20,13 +20,13 @@
                  [org.slf4j/slf4j-nop "1.7.36"]
                  [ring/ring-core "1.9.5" :exclusions [clj-time commons-fileupload]]
                  [ring/ring-json "0.5.1"]]
-  :plugins [[duct/lein-duct "0.11.0"]]
+  :plugins [[duct/lein-duct "0.12.3"]]
   :middleware [lein-duct.plugin/middleware]
   :main ^:skip-aot applicosan.main
   :profiles {:repl {:repl-options {:init-ns user}}
              :dev {:source-paths ["env"]
                    :dependencies
-                   [[org.clojure/tools.namespace "1.2.0"]
+                   [[org.clojure/tools.namespace "1.3.0"]
                     [integrant/repl "0.3.2"]
                     [ring/ring-mock "0.4.0"]]}
              :uberjar {:aot :all
